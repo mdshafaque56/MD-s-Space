@@ -1,0 +1,799 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>MD Shafaque | Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-RXf+QSDCUQs6f2b9Yk4dTKXGplP2XGn5F7gJg1VE3Dk5CqZz+5QyZjTz6LwYpZ40p+qfU3jd+0e3E1rY8n6w2g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    #page-loader {
+      position: fixed;
+      inset: 0;
+      background: #0d0d0d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+
+    #page-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .logo {
+      font-size: 3rem;
+      color: #ff7a18;
+      font-weight: 700;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="page-loader">
+    <div class="logo">MD</div>
+  </div>
+
+  <div class="pink-bg"></div>
+
+  <!-- Center Loading Circle (initial) -->
+  <div id="logoCircle" class="logo-circle">
+    <!-- Replace src with your real image path -->
+    <img
+      src="data:image/jpeg;base64,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"
+      alt="MD Shafaque" />
+  </div>
+
+  <!-- Final Top-Left Corner Logo (after animation) -->
+  <div id="cornerLogo" class="corner-logo">
+    <img
+      src="data:image/jpeg;base64,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" />
+
+    <!-- SOCIAL DROPDOWN -->
+    <div class="logo-dropdown">
+      <a href="https://linkedin.com/in/yourid" target="_blank"><i class="fab fa-linkedin"></i></a>
+      <a href="https://github.com/yourid" target="_blank"><i class="fab fa-github"></i></a>
+      <a href="https://instagram.com/yourid" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://twitter.com/yourid" target="_blank"><i class="fab fa-x-twitter"></i></a>
+      <a href="https://youtube.com/@yourid" target="_blank"><i class="fab fa-youtube"></i></a>
+    </div>
+  </div>
+
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Page Wrapper (hidden until animation ends) -->
+  <div class="page-wrapper">
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <nav class="nav-inner">
+        <div class="brand-text">
+          <span class="name great-vibes">MD Shafaque</span>
+
+          <span class="tagline">Python Developer • AI & ML Enthusiast • AI & ML Blogger</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+
+          <!-- ⭐ Glowing AeZed Button -->
+          <li>
+            <a href="blogsy.html" target="_blank" class="aezed-button">
+              ⭐ Visit MD's Space
+            </a>
+          </li>
+        </ul>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Hero Section -->
+      <section id="home" class="section hero parallax" data-speed="3">
+        <div class="hero-content reveal">
+          <h1>Hey, I’m <span class="accent">MD Shafaque</span> 👋</h1>
+          <p>
+            3rd Year Undergrad at NIT Calicut, aspiring Python developer with a keen
+            interest in AI, Machine Learning and powerful, clean software.
+          </p>
+          <div class="hero-actions">
+            <a href="#projects" class="btn primary">View My Projects</a>
+            <a href="#contact" class="btn ghost">Contact Me</a>
+          </div>
+        </div>
+        <div class="hero-right">
+          <!-- Your Hero Image -->
+          <div class="hero-image parallax" data-speed="5">
+            <img
+              src="https://media.licdn.com/dms/image/v2/D5603AQEI_tdQYmIQgw/profile-displayphoto-scale_200_200/B56Zsjop.rJUAY-/0/1765829419761?e=1767830400&v=beta&t=oqzMSizMb8iFNmYgO44PgHr27s0BM0Lt06OywGnK7eY"
+              alt="MD Shafaque" />
+          </div>
+
+          <!-- Existing Orbit Animation -->
+          <div class="hero-orbit parallax" data-speed="2">
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="section reveal">
+        <div class="section-header">
+          <h2>About <span class="accent">Me</span></h2>
+          <p>A quick snapshot of who I am and what I do.</p>
+        </div>
+        <div class="about-slider">
+          <div class="about-track">
+
+            <div class="card">
+              <h3>Education</h3>
+              <p>
+                Undergraduate student at <strong>NIT Calicut</strong>, Civil Engineering,
+                exploring the intersection of engineering, AI and software craftsmanship.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Interests</h3>
+              <p>
+                Python, Machine Learning, Deep Learning, Computer Vision, Data Analytics,
+                Web Apps, and smart automation projects.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Clubs & Activities</h3>
+              <p>
+                Active member of coding and technical communities, continuously building
+                real-world projects and sharpening problem-solving skills.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Goals</h3>
+              <p>
+                To build impactful AI-driven products, contribute to open source, and push
+                myself towards world-class developer standards.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Education</h3>
+              <p>
+                Undergraduate student at <strong>NIT Calicut</strong>, Civil Engineering,
+                exploring the intersection of engineering, AI and software craftsmanship.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Interests</h3>
+              <p>
+                Python, Machine Learning, Deep Learning, Computer Vision, Data Analytics,
+                Web Apps, and smart automation projects.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Clubs & Activities</h3>
+              <p>
+                Active member of coding and technical communities, continuously building
+                real-world projects and sharpening problem-solving skills.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Goals</h3>
+              <p>
+                To build impactful AI-driven products, contribute to open source, and push
+                myself towards world-class developer standards.
+              </p>
+            </div>
+          </div>
+      </section>
+
+      <!-- Skills Section -->
+      <section id="skills" class="section reveal">
+        <div class="section-header">
+          <h2>My <span class="accent">Skills</span></h2>
+          <p>Technologies and tools I love working with.</p>
+        </div>
+        <div class="skills-wrapper">
+          <div class="skills-group">
+            <h3>Programming</h3>
+            <div class="skill-tags">
+              <span class="tag">Python</span>
+              <span class="tag">C/C++</span>
+              <span class="tag">MATLAB</span>
+            </div>
+          </div>
+          <div class="skills-group">
+            <h3>Libraries & Frameworks</h3>
+            <div class="skill-tags">
+              <span class="tag">NumPy</span>
+              <span class="tag">Pandas</span>
+              <span class="tag">Matplotlib</span>
+              <span class="tag">Seaborn</span>
+              <span class="tag">scikit-learn</span>
+              <span class="tag">Tensorflow</span>
+              <span class="tag">PyTorch</span>
+              <span class="tag">OpenCV</span>
+              <span class="tag">StatsModels</span>
+              <span class="tag">SciPy</span>
+            </div>
+          </div>
+          <div class="skills-group">
+            <h3>Tools & Platforms</h3>
+            <div class="skill-tags">
+              <span class="tag">Git & GitHub</span>
+              <span class="tag">VS Code</span>
+              <span class="tag">Jupyter</span>
+              <span class="tag">MS Office</span>
+              <span class="tag">Google Sites</span>
+              <span class="tag">Canva</span>
+              <span class="tag">AutoCAD</span>
+              <span class="tag">Linux</span>
+              <span class="tag">Ansys</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects Section -->
+      <section id="projects" class="section reveal">
+        <div class="section-header">
+          <h2>Featured <span class="accent">Projects</span></h2>
+          <p>My deployed project works.</p>
+        </div>
+        <div class="grid project-grid">
+          <!-- Repeatable project card -->
+          <article class="project-card parallax" data-speed="2">
+            <div class="project-header">
+              <h3>AI-Based Vehicle Trajectory Data Extraction</h3>
+              <span class="project-badge">Deep Learning</span>
+            </div>
+            <p>
+              Extracts Vehicle Trajectory Data from
+              Drone footage
+            </p>
+            <div class="project-tags">
+              <span>Python</span><span>YOLO</span>
+            </div>
+            <div class="project-links">
+              <a href="comingsoon.html" class="btn small">Live Demo</a>
+              <a href="comingsoon.html" class="btn small ghost">GitHub</a>
+            </div>
+          </article>
+
+          <article class="project-card parallax" data-speed="3">
+            <div class="project-header">
+              <h3>QnA AI Chatbot</h3>
+              <span class="project-badge">NLP</span>
+            </div>
+            <p>
+              Assists students & members with course queries, navigation, and basic
+              info using natural language.
+            </p>
+            <div class="project-tags">
+              <span>Python</span><span>NLTK</span><span>Streamlit</span>
+            </div>
+            <div class="project-links">
+              <a href="comingsoon.html" class="btn small">Live Demo</a>
+              <a href="comingsoon.html" class="btn small ghost">GitHub</a>
+            </div>
+          </article>
+
+          <article class="project-card parallax" data-speed="4">
+            <div class="project-header">
+              <h3>Portfolio Website</h3>
+              <span class="project-badge">Frontend</span>
+            </div>
+            <p>
+              This very website – a smooth, animated, white & orange portfolio with
+              dynamic interactions.
+            </p>
+            <div class="project-tags">
+              <span>HTML</span><span>CSS</span><span>JavaScript</span>
+            </div>
+            <div class="project-links">
+              <a href="comingsoon.html" class="btn small">Live Demo</a>
+              <a href="comingsoon.html" class="btn small ghost">GitHub</a>
+            </div>
+          </article>
+          <article class="project-card parallax" data-speed="4">
+            <div class="project-header">
+              <h3>AI-Based Traffic Density Estimation</h3>
+              <span class="project-badge">Computer Vision</span>
+            </div>
+            <p>
+              Uses Computer Vision to automate traffic density estimation.
+
+              Contributor: Muhammed Sajan S, Shanid AK & Amal Jazim
+              [Group Project]
+            </p>
+            <div class="project-tags">
+              <span>OpenCV</span><span>Python</span><span>YOLO</span>
+            </div>
+            <div class="project-links">
+              <a href="comingsoon.html" class="btn small">Live Demo</a>
+              <a href="comingsoon.html" class="btn small ghost">GitHub</a>
+            </div>
+          </article>
+
+          <article class="project-card parallax" data-speed="2">
+            <div class="project-header">
+              <h3>Research - A Hybrid Explainable Decision Framework for Two-wheeler EV Adoption in India</h3>
+              <span class="project-badge">Data Science</span>
+            </div>
+            <p>
+              Research Project under Dr Nishant MP, CED, NITC
+            </p>
+            <div class="project-tags">
+              <span>Python</span><span>Machine Learning</span><span>Streamlit</span>
+            </div>
+            <div class="project-links">
+              <a href="comingsoon.html" class="btn small">Live Demo</a>
+              <a href="comingsoon.html" class="btn small ghost">GitHub</a>
+            </div>
+          </article>
+
+          <article class="project-card parallax" data-speed="3">
+            <div class="project-header">
+              <h3>Air Quality Prediction Using LSTM Networks: A Deep Learning Approach</h3>
+              <span class="project-badge">Time Series</span>
+            </div>
+            <p>
+              Utilizes EPA Dataset of Air Pollutant Concentration Time-Series dataset.
+              Course Project under Dr Shihabudheen KV, Minor, AI & ML
+            </p>
+            <div class="project-tags">
+              <span>Python</span><span>LSTM(Deep Learning)</span><span>Flask</span>
+            </div>
+            <div class="project-links">
+              <a href="comingsoon.html" class="btn small">Live Demo</a>
+              <a href="comingsoon.html" class="btn small ghost">GitHub</a>
+            </div>
+          </article>
+
+        </div>
+      </section>
+      <section class="section reveal" id="blogs">
+        <div class="section-header">
+          <h2>Explore My <span class="accent">Blogs</span></h2>
+          <p>Dive into AI, ML, DL, Python & more</p>
+        </div>
+
+        <div class="blog-auto-wrapper">
+          <div class="blog-auto-track" id="blogTrack">
+
+            <a href="Project-01 Mini-Transformer.html" class="card-link">
+              <div class="blog-card">
+                <h3>Transformers</h3>
+                <p>Self-attention, multi-head mechanisms, positional encodings, and scaling laws.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>LangChain</h3>
+                <p>Chains, agents, memory, tools, and building LLM-powered workflows.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>LangGraph</h3>
+                <p>Graph-based agent execution with state, control flow, and recursion.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>CNNs</h3>
+                <p>Feature extraction, convolution math, pooling, and vision pipelines.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>RNNs</h3>
+                <p>Sequence modeling, vanishing gradients, and temporal memory.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>LSTMs</h3>
+                <p>Gates, long-term dependencies, and sequence stability.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>RAG</h3>
+                <p>Retrieval-Augmented Generation: Bridging LLMs with external data sources.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>LoRA</h3>
+                <p>Low-Rank Adaptation: Efficient fine-tuning of massive models.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Multimodal AI</h3>
+                <p>Models processing text, images, and audio in a unified space.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>AI Agents</h3>
+                <p>Autonomous systems capable of multi-step task execution.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>ViT</h3>
+                <p>Vision Transformers: Transformer architecture for computer vision.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Diffusion</h3>
+                <p>The math behind modern generative image models.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>GNNs</h3>
+                <p>Graph Neural Networks for complex relational data.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>CLIP</h3>
+                <p>Contrastive Language-Image Pre-training by OpenAI.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Prompt Eng.</h3>
+                <p>Optimizing inputs to elicit desired AI behaviors.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Chain of Thought</h3>
+                <p>Step-by-step reasoning for complex LLM problem solving.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Vector DBs</h3>
+                <p>Efficient similarity search for high-dimensional embeddings.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Quantization</h3>
+                <p>Compressing models for edge device deployment.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>RLHF</h3>
+                <p>Reinforcement Learning from Human Feedback for alignment.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Fed. Learning</h3>
+                <p>Distributed training with local data privacy.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>XAI</h3>
+                <p>Explainable AI: Making black-box models transparent.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Active Learning</h3>
+                <p>Intelligent data labeling strategies for efficiency.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Stable Diffusion</h3>
+                <p>Latent diffusion models for text-to-image generation.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>NAS</h3>
+                <p>Neural Architecture Search: Auto-designing DNNs.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>Cross-lingual</h3>
+                <p>NLP models that bridge multiple languages fluently.</p>
+              </div>
+            </a>
+
+            <a href="comingsoon.html" class="card-link">
+              <div class="blog-card">
+                <h3>MLOps</h3>
+                <p>Streamlining the machine learning lifecycle at scale.</p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Slider -->
+      <section class="section reveal" id="testimonials">
+        <div class="section-header">
+          <h2>What <span class="accent">People Say</span></h2>
+          <p>Some words from people who interacted with my projects.</p>
+        </div>
+
+        <div class="testimonial-slider">
+          <div class="testimonial-track">
+
+            <div class="testimonial-card">
+              <p>“Your ML explanations are clearer than any blog I’ve read!”</p>
+              <span class="name">— Aarav Mishra</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Loved your AI chatbot project. Super smooth and human-like responses!”</p>
+              <span class="name">— Priya Nair</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your coding style is clean, structured and professional. Really impressive.”</p>
+              <span class="name">— Keshav Reddy</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your portfolio UI is insane! Better than most software engineers.”</p>
+              <span class="name">— Sara Fernandes</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“That price analyzer project — brilliant idea and great execution!”</p>
+              <span class="name">— Imran Sheikh</span>
+            </div>
+
+            <!-- Duplicate set for seamless infinite loop -->
+            <div class="testimonial-card">
+              <p>“Your ML explanations are clearer than any blog I’ve read!”</p>
+              <span class="name">— Naumaan Saifi</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Loved your AI chatbot project. Super smooth and human-like responses!”</p>
+              <span class="name">— Priya Nair</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your coding style is clean, structured and professional. Really impressive.”</p>
+              <span class="name">— Keshav Reddy</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your portfolio UI is insane! Better than most software engineers.”</p>
+              <span class="name">— MD Shish Sheikh</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“That price analyzer project — brilliant idea and great execution!”</p>
+              <span class="name">— Imran Sheikh</span>
+            </div>
+            <div class="testimonial-card">
+              <p>“Your ML explanations are clearer than any blog I’ve read!”</p>
+              <span class="name">— Aarav Mishra</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Loved your AI chatbot project. Super smooth and human-like responses!”</p>
+              <span class="name">— Priya Nair</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your coding style is clean, structured and professional. Really impressive.”</p>
+              <span class="name">— Keshav Reddy</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your portfolio UI is insane! Better than most software engineers.”</p>
+              <span class="name">— Sara Fernandes</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“That price analyzer project — brilliant idea and great execution!”</p>
+              <span class="name">— Imran Sheikh</span>
+            </div>
+
+            <!-- Duplicate set for seamless infinite loop -->
+            <div class="testimonial-card">
+              <p>“Your ML explanations are clearer than any blog I’ve read!”</p>
+              <span class="name">— Naumaan Saifi</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Loved your AI chatbot project. Super smooth and human-like responses!”</p>
+              <span class="name">— Priya Nair</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your coding style is clean, structured and professional. Really impressive.”</p>
+              <span class="name">— Keshav Reddy</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“Your portfolio UI is insane! Better than most software engineers.”</p>
+              <span class="name">— MD Shish Sheikh</span>
+            </div>
+
+            <div class="testimonial-card">
+              <p>“That price analyzer project — brilliant idea and great execution!”</p>
+              <span class="name">— Imran Sheikh</span>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="section reveal">
+        <div class="section-header">
+          <h2>Get in <span class="accent">Touch</span></h2>
+          <p>Have a project, opportunity, or idea? Let’s talk.</p>
+        </div>
+        <div class="contact-wrapper">
+          <form id="contactForm" class="contact-form">
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" required />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+            <div class="field">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn primary full">
+              Send Message
+            </button>
+          </form>
+
+          <div class="contact-info">
+            <p>
+              Prefer email? Reach me at:<br />
+              <a href="mailto:mdshafaque56@gmail.com" class="accent-link">
+                <i class="fa-solid fa-envelope"></i> mdshafaque56@example.com
+              </a>
+            </p>
+
+            <p>Or connect with me here:</p>
+
+            <div class="contact-links">
+              <a href="https://www.linkedin.com/in/md-shafaque-37973b280/?originalSubdomain=in"
+                target="_blank">LinkedIn</a>
+              <a href="https://github.com/mdshafaque56" target="_blank">GitHub</a>
+              <a href="https://www.instagram.com/smilingsword_56/" target="_blank">Instagram</a>
+            </div>
+
+          </div>
+
+        </div>
+
+  </div>
+  </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© <span id="year"></span> MD Shafaque. Open Source Project.</p>
+
+
+
+
+  </footer>
+
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="back-to-top" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function () {
+      emailjs.init("bttg6o-fFGRjOF5azyh");
+    })();
+  </script>
+  <!-- <script>
+    window.addEventListener("load", () => {
+      document.getElementById("page-loader").classList.add("hidden");
+    });
+  </script> -->
+  <script>
+    window.addEventListener("load", () => {
+      const loader = document.getElementById("page-loader");
+
+      // Force loader visibility for minimum time
+      setTimeout(() => {
+        loader.classList.add("hidden");
+      }, 6000); // 👈 try 600–1200 ms
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

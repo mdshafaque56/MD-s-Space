@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Coming Soon | MD AI Space</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        :root {
+            --orange: #ff7a18;
+            --dark: #0d0d0d;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--white);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== Tick Background ===== */
+        .tick-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(90deg, rgba(255, 122, 24, 0.08) 1px, transparent 1px),
+                linear-gradient(rgba(255, 122, 24, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: tickMove 6s linear infinite;
+            z-index: -3;
+        }
+
+        @keyframes tickMove {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 40px 40px;
+            }
+        }
+
+        /* ===== Mouse Glow ===== */
+        .glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 122, 24, 0.2), transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        /* ===== Center Content ===== */
+        .container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        /* ===== Logo ===== */
+        .logo {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--orange);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-14px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== Coming Soon Text ===== */
+        .coming {
+            margin-top: 20px;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            letter-spacing: 6px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ===== Subtitle ===== */
+        .sub {
+            margin-top: 14px;
+            opacity: 0.7;
+            font-size: 1rem;
+            max-width: 420px;
+        }
+
+        /* ===== Floating Particles ===== */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--orange);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: rise 8s linear infinite;
+        }
+
+        @keyframes rise {
+            from {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+
+            to {
+                transform: translateY(-120vh) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="tick-bg"></div>
+    <div class="glow" id="glow"></div>
+
+    <div class="container">
+        <div class="logo">😌</div>
+        <div class="coming">COMING SOON</div>
+        <div class="sub">
+            Blogs on AI by Md Shafaque
+        </div>
+    </div>
+
+    <script>
+        /* ===== Mouse Glow ===== */
+        const glow = document.getElementById("glow");
+        window.addEventListener("mousemove", e => {
+            glow.style.left = e.clientX + "px";
+            glow.style.top = e.clientY + "px";
+        });
+
+        /* ===== Floating Particles ===== */
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement("div");
+            p.className = "particle";
+            p.style.left = Math.random() * 100 + "vw";
+            p.style.bottom = "-10px";
+            p.style.animationDelay = Math.random() * 8 + "s";
+            p.style.animationDuration = 6 + Math.random() * 6 + "s";
+            document.body.appendChild(p);
+        }
+    </script>
+
+</body>
+
+</html>

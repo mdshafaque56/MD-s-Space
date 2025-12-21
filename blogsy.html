@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>MD’s AI Blogs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        /* ================== ROOT THEME ================== */
+        :root {
+            --orange: #ff7a18;
+            --bg-dark: #0d0d0d;
+            --white: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --blur: blur(14px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* ================== TICK BACKGROUND ================== */
+        .tick-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(90deg, rgba(255, 122, 24, 0.08) 1px, transparent 1px),
+                linear-gradient(rgba(255, 122, 24, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: tickMove 6s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes tickMove {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 40px 40px;
+            }
+        }
+
+        .mouse-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 122, 24, 0.15), transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        /* ================== HEADER ================== */
+        header {
+            text-align: center;
+            padding: 80px 20px 40px;
+        }
+
+        header h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            color: var(--orange);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            opacity: 0.8;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* ================== BLOG GRID ================== */
+        .blog-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            padding: 60px;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .blog-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(255, 122, 24, 0.25);
+            border-radius: 18px;
+            padding: 30px;
+            transition: all 0.35s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg,
+                    transparent,
+                    rgba(255, 122, 24, 0.25),
+                    transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .blog-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-14px) scale(1.03);
+            box-shadow: 0 25px 60px rgba(255, 122, 24, 0.35);
+        }
+
+        .blog-card h3 {
+            color: var(--orange);
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .blog-card p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        /* ================== FOOTER ================== */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .blog-container {
+                padding: 30px;
+            }
+        }
+    </style>
+    <style>
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            background: #0d0d0d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+
+        #page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .logo {
+            font-size: 3rem;
+            color: #ff7a18;
+            font-weight: 700;
+            animation: pulse 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            50% {
+                transform: scale(1.15);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+        }
+
+        .card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="page-loader">
+        <div class="logo">MD</div>
+    </div>
+
+
+    <div class="tick-bg"></div>
+    <div class="mouse-glow" id="glow"></div>
+
+    <header>
+        <h1>MD’s Space</h1>
+        <p>The AI Multiverse</p>
+    </header>
+
+    <section class="blog-container">
+        <a href="Project-01 Mini-Transformer.html" class="card-link">
+            <div class="blog-card">
+                <h3>Transformers</h3>
+                <p>Self-attention, multi-head mechanisms, positional encodings, and scaling laws.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>LangChain</h3>
+                <p>Chains, agents, memory, tools, and building LLM-powered workflows.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>LangGraph</h3>
+                <p>Graph-based agent execution with state, control flow, and recursion.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>CNNs</h3>
+                <p>Feature extraction, convolution math, pooling, and vision pipelines.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>RNNs</h3>
+                <p>Sequence modeling, vanishing gradients, and temporal memory.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>LSTMs</h3>
+                <p>Gates, long-term dependencies, and sequence stability.</p>
+            </div>
+        </a>
+
+        <!-- Trending Concepts Added -->
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>RAG</h3>
+                <p>Retrieval-Augmented Generation: Bridging LLMs with external data sources.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>LoRA</h3>
+                <p>Low-Rank Adaptation: Efficient fine-tuning of massive models.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Multimodal AI</h3>
+                <p>Models processing text, images, and audio in a unified space.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>AI Agents</h3>
+                <p>Autonomous systems capable of multi-step task execution.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>ViT</h3>
+                <p>Vision Transformers: Transformer architecture for computer vision.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Diffusion</h3>
+                <p>The math behind modern generative image models.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>GNNs</h3>
+                <p>Graph Neural Networks for complex relational data.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>CLIP</h3>
+                <p>Contrastive Language-Image Pre-training by OpenAI.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Prompt Eng.</h3>
+                <p>Optimizing inputs to elicit desired AI behaviors.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Chain of Thought</h3>
+                <p>Step-by-step reasoning for complex LLM problem solving.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Vector DBs</h3>
+                <p>Efficient similarity search for high-dimensional embeddings.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Quantization</h3>
+                <p>Compressing models for edge device deployment.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>RLHF</h3>
+                <p>Reinforcement Learning from Human Feedback for alignment.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Fed. Learning</h3>
+                <p>Distributed training with local data privacy.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>XAI</h3>
+                <p>Explainable AI: Making black-box models transparent.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Active Learning</h3>
+                <p>Intelligent data labeling strategies for efficiency.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Stable Diffusion</h3>
+                <p>Latent diffusion models for text-to-image generation.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>NAS</h3>
+                <p>Neural Architecture Search: Auto-designing DNNs.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>Cross-lingual</h3>
+                <p>NLP models that bridge multiple languages fluently.</p>
+            </div>
+        </a>
+
+        <a href="comingsoon.html" class="card-link">
+            <div class="blog-card">
+                <h3>MLOps</h3>
+                <p>Streamlining the machine learning lifecycle at scale.</p>
+            </div>
+        </a>
+    </section>
+
+    <footer>
+        © 2025 MD Shafaque · Open Source (MIT License)
+
+    </footer>
+
+    <script>
+        /* ================== MOUSE GLOW ================== */
+        const glow = document.getElementById("glow");
+
+        window.addEventListener("mousemove", (e) => {
+            glow.style.left = e.clientX + "px";
+            glow.style.top = e.clientY + "px";
+        });
+    </script>
+    <script>
+        window.addEventListener("load", () => {
+            const loader = document.getElementById("page-loader");
+
+            // Force loader visibility for minimum time
+            setTimeout(() => {
+                loader.classList.add("hidden");
+            }, 600); // 👈 try 600–1200 ms
+        });
+    </script>
+
+</body>
+
+</html>
