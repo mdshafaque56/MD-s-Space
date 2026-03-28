@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CenterNet - Md Shafaque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <!-- MathJax for Mathematical Equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg: #fafafa;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #ff7a00;
+            --accent-hover: #e06900;
+            --card-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --code-bg: #1f2937;
+            --code-text: #e5e7eb;
+        }
+
+        html[data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg: #0f1115;
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --card-bg: #161b22;
+            --sidebar-bg: #161b22;
+            --border-color: #374151;
+            --code-bg: #0d1117;
+            --code-text: #c9d1d9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            transition: background 0.3s ease, color 0.3s ease;
+            line-height: 1.6;
+        }
+
+        /* Progress Bar */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff7a00, #ffb347);
+            width: 0%;
+            z-index: 2000;
+            border-radius: 0 2px 2px 0;
+            transition: width 0.1s ease;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 76px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            padding: 24px 12px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: fixed;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 10px;
+        }
+
+        .sidebar:hover {
+            width: 260px;
+        }
+
+        .sidebar h2 {
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: 700;
+            opacity: 0;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+            margin-bottom: 2rem;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar h2::before {
+            content: "M";
+            font-size: 24px;
+            display: inline-block;
+            opacity: 1;
+            /* Alway show the 'M' icon */
+            position: absolute;
+            left: 24px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover h2::before {
+            opacity: 0;
+        }
+
+        .sidebar:hover h2 {
+            opacity: 1;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: flex-start;
+            text-decoration: none;
+            color: var(--text-muted);
+            padding: 10px 12px;
+            border-radius: 8px;
+            white-space: normal;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            width: 236px;
+        }
+
+        .sidebar a span {
+            opacity: 0;
+            margin-left: 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateX(-10px);
+
+            white-space: normal;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar:hover a span {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255, 122, 0, 0.1);
+            color: var(--accent);
+        }
+
+        /* Main Content Container */
+        .main-wrapper {
+            margin-left: 76px;
+            width: calc(100% - 76px);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 0 20px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* When the sidebar expands, it will push the main content nicely */
+        .sidebar:hover~.main-wrapper {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+        }
+
+        .content {
+            width: 100%;
+            max-width: 800px;
+            padding: 120px 0 80px;
+            flex-shrink: 1;
+        }
+
+        /* Advertisement Side Panels */
+        .ad-panel {
+            width: 240px;
+            flex-shrink: 0;
+            padding-top: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ad-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ad-card img,
+        .ad-card video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .ad-card .ad-title {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .ad-card .ad-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .ad-card .ad-btn {
+            background: rgba(255, 122, 0, 0.1);
+            color: var(--accent);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .ad-card .ad-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* Glassmorphism Floating Navbar */
+        .navbar {
+            position: fixed;
+            top: 20px;
+            left: calc(50% + 38px);
+            /* Initial center offsetting sidebar */
+            transform: translateX(-50%);
+            width: calc(100% - 140px);
+            max-width: 800px;
+
+            background: rgba(var(--card-bg), 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+
+            padding: 12px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1500;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.3s ease,
+                border-color 0.3s ease;
+        }
+
+        .sidebar:hover~.navbar {
+            left: calc(50% + 130px);
+        }
+
+        /* Dynamic Title that updates as you scroll */
+        .nav-title {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 1.05rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0.9;
+        }
+
+        .theme-btn {
+            background: var(--border-color);
+            color: var(--text-main);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 99px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Article Formatting */
+        article header {
+            margin-bottom: 3.5rem;
+            text-align: left;
+        }
+
+        .meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+        }
+
+        .tag {
+            background: rgba(255, 122, 0, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.2;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        h1+p.lead {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .section {
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border-color);
+            scroll-margin-top: 100px;
+            /* Provides buffer when jumping to anchor */
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            font-size: 1.7rem;
+            color: var(--text-main);
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.01em;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            width: 40%;
+            height: 3px;
+            background: var(--accent);
+            bottom: -8px;
+            left: 0;
+            border-radius: 2px;
+            opacity: 0.8;
+        }
+
+        .section h3 {
+            font-size: 1.35rem;
+            margin: 2rem 0 1rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        ul,
+        ol {
+            margin: 0 0 1.5rem 1.5rem;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive image inside content */
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin: 1.5rem auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        /* Callout Box / Blockquote */
+        .callout {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            font-style: italic;
+            color: var(--text-main);
+        }
+
+        /* Modern Code Block */
+        .code-box {
+            background: var(--code-bg);
+            border-radius: 12px;
+            position: relative;
+            margin: 2rem 0;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-header {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .code-lang {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            color: var(--code-text);
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .code-box pre {
+            padding: 16px;
+            margin: 0;
+            overflow-x: auto;
+            color: var(--code-text);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Inline code */
+        code:not(pre code) {
+            background: var(--border-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        /* Responsive Design */
+
+        @media (max-width: 1100px) {
+            .right-ad {
+                display: none;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 2000;
+            }
+
+            .sidebar:hover {
+                width: 76px;
+            }
+
+            .main-wrapper,
+            .sidebar:hover~.main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .navbar,
+            .sidebar:hover~.navbar {
+                left: 50%;
+                width: calc(100% - 40px);
+            }
+
+            .content {
+                padding: 100px 20px 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="progressBar"></div>
+    <!-- Sidebar TOC -->
+    <aside class="sidebar" id="sidebar">
+        <h2>MDSSPACE</h2>
+        <nav><a href="#introduction"><span>Introduction</span></a>
+            <a href="#what-is-an-anchor-in-object-detection"><span>What is an Anchor in
+                    Object Detection?</span></a>
+            <a href="#what-is-anchor-free-object-detection"><span>What is Anchor-Free Object Detection?</span></a>
+            <a href="#is-anchor-free-better-than-anchor-based-object-detection"><span>Is
+                    Anchor Free Better Than Anchor-based Object Detection?</span></a>
+            <a href="#components-of-deep-learning-based-object-detection"><span>Components
+                    of Deep Learning-Based Object Detection</span></a>
+            <a href="#object-detection-model"><span>Object Detection Model</span></a>
+            <a href="#ground-truth-encoding-in-object-detection"><span>Ground Truth
+                    Encoding in Object Detection</span></a>
+            <a href="#loss-function-in-object-detection"><span>Loss Function in Object Detection</span></a>
+            <a href="#model-prediction-decoding"><span>Model Prediction
+                    Decoding</span></a>
+            <a href="#introduction-to-centernet"><span>Introduction to CenterNet</span></a>
+            <a href="#ground-truth-encoding-in-centernet"><span>Ground Truth Encoding in
+                    CenterNet</span></a>
+            <a href="#centernet-output-heads-and-keypoint-heatmap"><span>CenterNet Output
+                    Heads and Keypoint Heatmap</span></a>
+            <a href="#loss-functions-in-centernet"><span>Loss Functions in CenterNet</span></a>
+            <a href="#centernet-model-backbone-architecture"><span>CenterNet Model
+                    (Backbone Architecture)</span></a>
+            <a href="#centernet-pose-estimation"><span>CenterNet Pose
+                    Estimation</span></a>
+            <a href="#centernet-results"><span>CenterNet Results</span></a>
+            <a href="#inference-strategies-and-sample-prediction"><span>Inference Strategies
+                    and Sample Prediction</span></a>
+            <a href="#centernet-model-inference-using-tensorflow"><span>CenterNet Model
+                    Inference using TensorFlow</span></a>
+            <a href="#coco-classes"><span>COCO
+                    Classes</span></a>
+            <a href="#class-ids-to-color-ids"><span>Class IDs to
+                    Color IDs</span></a>
+            <a href="#load-model-from-tensorflow-hub"><span>Load Model from TensorFlow
+                    Hub</span></a>
+            <a href="#run-inference"><span>Run Inference</span></a>
+            <a href="#convert-tensors-to-numpy"><span>Convert Tensors to NumPy</span></a>
+            <a href="#filtering-and-processing-predictions"><span>Filtering and Processing
+                    Predictions</span></a>
+            <a href="#wrap-up-inference-annotation-and-plotting"><span>Wrap-Up: Inference,
+                    Annotation, and Plotting</span></a>
+            <a href="#results"><span>Results</span></a>
+            <a href="#conclusion"><span>Conclusion</span></a>
+
+        </nav>
+    </aside>
+    <!-- Floating Navbar -->
+    <nav class="navbar">
+        <div class="nav-title">Blog Title...</div>
+        <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
+    </nav>
+    <!-- Main Container -->
+    <main class="main-wrapper">
+        <div class="content">
+            <!-- Standard Blog Header -->
+            <article>
+                <header>
+                    <span class="tag">Engineering</span>
+                    <h1>Understanding CenterNet: Object Detection via Center Points </h1>
+                    <p class="lead">As a major milestone in anchor-free detection, CenterNet treats objects as single
+                        points. This approach is often more versatile than traditional anchor-based methods, making it
+                        easier to adapt for tasks like pose estimation and segmentation. </p>
+                    <div class="meta" style="margin-top: 1.5rem;">
+                        <span>📅 April 28, 2026</span>
+                        <span>•</span>
+                        <span>✍️ MD Shafaque</span>
+                        <span>•</span>
+                        <span>⏳ 20 min read</span>
+                    </div>
+                </header>
+                <div class="section" id="introduction">
+                    <h2>Introduction</h2>
+                    <p>Object detection is a computer vision technique to localize and classify objects in an image or
+                        video. The deep learning-based object detection technique is highly successful with many
+                        applications using object detection, for example, surveillance and tracking.</p>
+
+
+                </div>
+                <div class="section" id="what-is-an-anchor-in-object-detection">
+                    <h2>What is an Anchor in Object Detection?</h2>
+                    <img alt="Anchor"
+                        src="https://learnopencv.com/wp-content/uploads/2022/10/anchor-in-object-detection-1024x593.png" />
+                    <p><strong>Anchors</strong> are predefined bounding boxes that act as initial guesses for locating
+                        objects in an
+                        image. They serve as reference proposals that the model uses to predict the actual object
+                        positions.
+
+                        To understand this, consider an image of size <strong><code>300 × 300</code></strong> divided
+                        into a <strong><code>3 × 3</code></strong> grid. At the center
+                        of each grid cell, a bounding box of fixed size (for example,
+                        <strong><code>80 × 75</code></strong>) is placed. These
+                        predefined boxes are called <strong>anchors</strong>.
+
+                        During training, each <strong>anchor</strong> is compared with the <strong>ground truth bounding
+                            boxes</strong>. If an anchor
+                        overlaps sufficiently with a ground truth object, it is assigned the corresponding class label.
+                        Otherwise, it is labeled as <strong>background</strong> (no object).
+
+                        Additionally, a single grid cell can contain multiple anchors of different sizes and shapes,
+                        allowing the model to detect objects with varying dimensions more effectively.
+                    </p>
+                    <img alt="Anchor"
+                        src="https://learnopencv.com/wp-content/uploads/2022/10/multiple-anchors-per-grid-cell-1024x568.png" />
+
+
+                </div>
+                <div class="section" id="what-is-anchor-free-object-detection">
+                    <h2>What is Anchor-Free Object Detection?</h2>
+                    <p><strong>Anchor-free object detection</strong> is a method that predicts <strong>object bounding
+                            boxes</strong> directly, without
+                        using predefined anchor boxes. Instead, predictions are made relative to specific reference
+                        points in the image, typically <strong>grid cells</strong>.</p>
+                    <h3>For example, </h3>
+                    <p>Consider an image divided into a <strong><code>6 × 6</code></strong> grid. The center of an
+                        object will lie within one of these
+                        grid cells. That particular cell is responsible for predicting the object’s properties,
+                        including its width, height, and the offset of its center from the grid cell’s center. This
+                        approach simplifies the detection process by eliminating the need for predefined anchors and
+                        focuses on predicting objects based on their <strong>key points</strong>.</p>
+                    <img alt="Anchor"
+                        src="https://learnopencv.com/wp-content/uploads/2022/10/anchor-free-prediction-1024x612.png" />
+
+
+                </div>
+                <div class="section" id="is-anchor-free-better-than-anchor-based-object-detection">
+                    <h2>Is Anchor Free Better Than Anchor-based Object Detection?</h2>
+                    <p>Initially, anchor-based object detection achieved strong results and became more accurate due to
+                        extensive research and improvements. However, recent advancements in anchor-free methods have
+                        closed this gap, making their performance comparable in terms of accuracy.</p>
+                    <div class="callout">
+                        💡 <strong>Advantages of anchor-free methods over anchor-based approaches:</strong>
+                        <ul>
+                            <li><strong>No need for anchor design:</strong> Selecting appropriate anchor box sizes and
+                                shapes is critical in anchor-based methods, but it is complex and often requires
+                                extensive hyperparameter tuning.</li>
+                            <li><strong>Simpler and faster models:</strong> Increasing the number of anchors can improve
+                                accuracy in anchor-based methods, but it also increases model complexity and slows down
+                                inference. Anchor-free methods avoid this overhead.</li>
+                            <li><strong>Better generalization:</strong> Anchor-free approaches represent objects as key
+                                points, making them easier to extend to tasks like keypoint detection, pose estimation,
+                                and 3D object detection. In contrast, anchor-based methods are mainly limited to
+                                bounding box prediction.</li>
+                            <li><strong>Improved performance:</strong> Anchor-free methods have achieved
+                                state-of-the-art
+                                performance on various object detection benchmarks.</li>
+                        </ul>
+                    </div>
+
+
+                </div>
+                <div class="section" id="components-of-deep-learning-based-object-detection">
+                    <h2>Components of Deep Learning-Based Object Detection</h2>
+                    <p>Before understanding how CenterNet works, it is important to know the general pipeline of deep
+                        learning-based object detection. An object detection system mainly consists of four key
+                        components:
+                        <li><strong>Object Detection Model:</strong> A neural network that processes the input image and
+                            extracts features to
+                            identify objects.</li>
+                        <li><strong>Ground Truth Encoding:</strong> The process of converting actual object labels into
+                            a
+                            format that matches
+                            the model’s output structure.</li>
+                        <li><strong>Loss Function:</strong> A function used to measure the difference between predicted
+                            outputs and actual
+                            labels, guiding the model during training.</li>
+                        <li><strong>Model Prediction Decoding:</strong> The step of converting the model’s output back
+                            into
+                            meaningful
+                            predictions, such as object classes and bounding box coordinates.</li>
+                        <img alt=""
+                            src="https://learnopencv.com/wp-content/uploads/2022/10/object-detection-model-training-pipeline-1024x524.png" />
+                    </p>
+                </div>
+                <div class="section" id="object-detection-model">
+                    <h2>Object Detection Model</h2>
+                    <p>A <strong>Convolutional Neural Network (CNN)</strong>-based architecture is used to process input
+                        images and
+                        convert them into lower-resolution <strong>feature maps</strong>. These feature maps contain
+                        important
+                        information about objects in the image, including their locations and class labels.
+
+                        However, a basic CNN is not highly effective for object detection tasks because deeper layers
+                        tend to lose precise spatial (localization) information. To overcome this limitation, advanced
+                        architectures such as <strong>Feature Pyramid Networks (FPN)</strong> are used, which help
+                        preserve both semantic
+                        and spatial details for better detection performance.
+                        <img alt=""
+                            src="https://learnopencv.com/wp-content/uploads/2022/10/object-detection-model-1024x460.png" />
+                    </p>
+                </div>
+                <div class="section" id="ground-truth-encoding-in-object-detection">
+                    <h2>Ground Truth Encoding in Object Detection</h2>
+                    <p>To compute the loss between the model’s predictions and the <strong>ground truth labels</strong>,
+                        both must have
+                        the same shape and format.
+
+                        In this case, the model produces an output of size <strong><code>C × 3 × 3</code></strong>.
+                        However, the ground truth labels are typically represented in a different format, such as
+                        class IDs along with bounding box coordinates. The model produces an output of size
+                        <strong><code>C × 3 × 3</code></strong>, whereas ground truth labels are typically represented
+                        as
+                        <strong><code>[class_id, x_min, y_min, x_max, y_max]</code></strong>. To enable proper
+                        comparison during training, these labels must be converted into the same
+                        format as the model output. This process is known as <strong>ground truth encoding</strong>.
+
+                    </p>
+                </div>
+                <div class="section" id="loss-function-in-object-detection">
+                    <h2>Loss Function in Object Detection</h2>
+                    <p>Training an object detection model requires a <strong>loss function</strong>, similar to other
+                        neural networks.
+                        The problem consists of two main tasks:
+
+                        <li><strong>Localization:</strong> Predicting bounding box coordinates, which is a regression
+                            problem.</li>
+                        <li><strong>Classification:</strong> Identifying the object class, which is a classification
+                            problem.</li>
+
+                        To handle both tasks, separate loss functions are used, and their weighted combination forms the
+                        final loss.
+
+                        Since background regions significantly outnumber object regions, the problem suffers from
+                        <strong>class
+                            imbalance</strong>. To address this, specialized loss functions such as <strong>focal
+                            loss</strong> are used, which reduce
+                        the impact of easily classified examples.
+                    </p>
+                </div>
+                <div class="section" id="model-prediction-decoding">
+                    <h2>Model Prediction Decoding</h2>
+                    <p>After prediction, the model output must be converted back into a meaningful format, such as
+                        <strong><code>[class_id, x_min, y_min, x_max, y_max]</code></strong>. This step is called
+                        <strong>prediction decoding</strong>, and it is essentially the reverse of <strong>ground truth
+                            encoding</strong>.
+                    </p>
+                </div>
+                <div class="section" id="introduction-to-centernet">
+                    <h2>Introduction to CenterNet</h2>
+                    <p>
+                        Now that the core components of object detection are clear, we can understand how
+                        <strong>CenterNet</strong>
+                        builds on them.
+                    </p>
+                    <p>
+                        In April 2019, two important papers were introduced at CVPR:
+                    </p>
+                    <p>
+                        Object as Points by Xingyi Zhou, Dequan Wang, and Philipp Krähenbühl<br />
+                        CenterNet: Keypoint Triplets for Object Detection by Kaiwen Duan and others
+                    </p>
+
+
+                    In the <i>Object as Points</i> paper, the term CenterNet is used to describe the algorithm.
+
+
+
+                    To understand how CenterNet works, we focus on the following aspects:
+
+
+                    <p>
+                        • Ground truth encoding<br />
+                        • Model prediction decoding<br />
+                        • CenterNet model architecture (backbone)
+                    </p>
+                </div>
+                <div class="section" id="ground-truth-encoding-in-centernet">
+                    <h2>Ground Truth Encoding in CenterNet</h2>
+                    <p>
+                        In CenterNet, an object is represented by the center point of its bounding box.
+                        <img alt=""
+                            src="https://learnopencv.com/wp-content/uploads/2022/10/centernet-od-model-output-1024x498.png" />The
+                        size of the
+                        bounding box and other object properties are derived from the keypoint features at this central
+                        location.
+                        <img alt=""
+                            src="https://learnopencv.com/wp-content/uploads/2022/10/centernet-objects-as-points-1024x237.png" />
+                    </p>
+                    <p>
+                        Ground truth encoding in CenterNet depends on the structure of the model’s output. Therefore, it
+                        is important to first understand the model output before discussing the encoding process.
+                    </p>
+                </div>
+                <div class="section" id="centernet-output-heads-and-keypoint-heatmap">
+                    <h2>CenterNet Output Heads and Keypoint Heatmap</h2>
+                    <p>
+                        The <strong>CenterNet</strong> model consists of three output heads: the <strong>keypoint
+                            heatmap</strong>, <strong>object size</strong>, and <strong>local
+                            offset</strong>. It takes an input image of shape <strong><code>3 × W × H</code></strong>.
+                        Given an output stride <strong><code>R</code></strong>, the output feature
+                        map has dimensions <strong><code>⌊W/R⌋ × ⌊H/R⌋</code></strong>.
+                    </p>
+                    <p>
+                        Each output head has a specific depth: the <strong>keypoint heatmap</strong> has
+                        <strong><code>C</code></strong> channels (one for each object
+                        class), while both the <strong>object size</strong> and <strong>local offset</strong> heads have
+                        a depth of <strong><code>2</code></strong>.
+                    </p>
+                    <p>
+                        The <strong>keypoint heatmap</strong> assigns one channel per object class (for example,
+                        <strong><code>80</code></strong> channels for the COCO
+                        dataset). It is responsible for encoding and predicting the center points of objects.
+                    </p>
+                    <p>
+                        Let <strong>\( p = (p_x, p_y) \)</strong> be the center of a bounding box in the original
+                        image. Due to the stride <strong>\( R \)</strong>,
+                        this point is mapped to heatmap space as <strong>\( \tilde{p} = (\lfloor p_x/R \rfloor, \lfloor
+                            p_y/R \rfloor) \)</strong>.
+                    </p>
+                    <p>
+                        The ground truth heatmap value at position <strong>\( (x, y) \)</strong> for class
+                        <strong>\( c \)</strong> is computed using a <strong>Gaussian
+                            distribution</strong> centered at <strong>\( \tilde{p} \)</strong>:
+                    </p>
+                    <p style="text-align: center; margin: 1.5rem 0;">
+                        \[ Y_{xyc} = \exp\left( - \frac{(x - \tilde{p}_x)^2 + (y - \tilde{p}_y)^2}{2\sigma_p^2} \right)
+                        \]
+                    </p>
+                    <p>
+                        Here, <strong>\( \sigma_p \)</strong> is the <strong>standard deviation</strong>, which adapts
+                        based on the object size. It is calculated as:
+                    </p>
+                    <p style="text-align: center; margin: 1.5rem 0;">
+                        \[ \sigma_p = \frac{r}{3} \]
+                    </p>
+                    <p>
+                        where <strong><code>r</code></strong> is a radius determined such that the generated bounding
+                        box maintains a minimum <strong>IoU</strong> (Intersection over Union) with
+                        the ground truth.
+                    </p>
+                    <p>
+                        If multiple instances of the same class exist in an image, the heatmap value at each location is
+                        taken as the maximum among all corresponding instances.
+                    </p>
+                </div>
+                <div class="section" id="loss-functions-in-centernet">
+                    <h2>Loss Functions in CenterNet</h2>
+                    <p>
+                        Since the CenterNet model has three output heads, it uses three corresponding loss functions:
+                    </p>
+                    <ul>
+                        <li>Heatmap Loss</li>
+                        <li>Offset Loss</li>
+                        <li>Object Size Loss</li>
+                    </ul>
+                    <p>
+                        Let the ground truth and predicted values be denoted as follows:
+                    </p>
+                    <p style="text-align: center; margin: 1.5rem 0; line-height: 2;">
+                        \( \text{heatmap}_{gt}: Y_{xyc} \) &nbsp;&nbsp;&nbsp; \( \text{heatmap}_{pred}: \hat{Y}_{xyc}
+                        \)<br />
+                        \( \text{offset}_{gt}: O_{\tilde{p}} \) &nbsp;&nbsp;&nbsp; \( \text{offset}_{pred}:
+                        \hat{O}_{\tilde{p}} \)<br />
+                        \( \text{size}_{gt}: s_{\tilde{p}} \) &nbsp;&nbsp;&nbsp; \( \text{size}_{pred}:
+                        \hat{s}_{\tilde{p}} \)
+                    </p>
+                    <h3>Heatmap Loss</h3>
+                    <p>
+                        The heatmap loss is based on focal loss, which is designed to handle class imbalance by reducing
+                        the contribution of easy (well-classified) examples and focusing more on hard ones.
+                    </p>
+                    <p>
+                        For positive samples (\( Y_{xyc} = 1 \)), the loss encourages the model to predict high
+                        confidence:
+                    </p>
+                    <p style="text-align: center;">
+                        \[ L = (1 - \hat{Y}_{xyc})^\alpha \log(\hat{Y}_{xyc}) \]
+                    </p>
+                    <p>
+                        For negative samples, the loss is:
+                    </p>
+                    <p style="text-align: center;">
+                        \[ L = (1 - Y_{xyc})^\beta (\hat{Y}_{xyc})^\alpha \log(1 - \hat{Y}_{xyc}) \]
+                    </p>
+                    <p>
+                        Here, \( \alpha \) and \( \beta \) are hyperparameters. The term \( (1 - Y_{xyc})^\beta \)
+                        reduces the
+                        penalty for points near object centers, making the model focus more on truly negative regions.
+                    </p>
+                    <p>
+                        Overall, focal loss ensures that confident predictions contribute less to the loss, making it
+                        effective for handling class imbalance.
+                    </p>
+                    <h3>Offset Loss</h3>
+                    <p>
+                        The offset loss uses Mean Absolute Error (MAE):
+                    </p>
+                    <p style="text-align: center;">
+                        \[ L_{off} = \frac{1}{N} \sum |\hat{O}_{\tilde{p}} - O_{\tilde{p}}| \]
+                    </p>
+                    <p>
+                        This loss is computed only at object center points (keypoints) in the output space.
+                    </p>
+                    <h3>Object Size Loss</h3>
+                    <p>
+                        The object size loss also uses Mean Absolute Error (MAE):
+                    </p>
+                    <p style="text-align: center;">
+                        \[ L_{size} = \frac{1}{N} \sum |\hat{s}_{\tilde{p}} - s_{\tilde{p}}| \]
+                    </p>
+                    <p>
+                        Similar to offset loss, it is calculated only at the bounding box centers.
+                    </p>
+                </div>
+                <div class="section" id="centernet-model-backbone-architecture">
+                    <h2>CenterNet Model (Backbone Architecture)</h2>
+                    <p>
+                        CenterNet uses different backbone architectures to extract features from input images. The main
+                        backbones used are:
+                    </p>
+                    <ul>
+                        <li>ResNet</li>
+                        <li>Deep Layer Aggregation (DLA)</li>
+                        <li>Stacked Hourglass Network</li>
+                    </ul>
+                    <p>
+                        These backbones are often enhanced with upsampling layers (up-convolutions) to improve
+                        resolution and with deformable convolutions to better handle geometric variations in objects.
+                    </p>
+                </div>
+                <div class="section" id="centernet-pose-estimation">
+                    <h2>CenterNet Pose Estimation</h2>
+                    <p>
+                        Before understanding how CenterNet performs pose estimation, let us briefly recall how it solves
+                        the object detection problem.
+                    </p>
+                    <p>
+                        CenterNet predicts the following components for object detection:
+                    </p>
+                    <ul>
+                        <li><b>Heatmap:</b> Each class has one channel to predict its keypoints (object centers).</li>
+                        <li><b>Offset:</b> Improves the precision of predicted keypoints.</li>
+                        <li><b>Object Size:</b> Predicts the width and height of the object at its center.</li>
+                    </ul>
+                    <p>
+                        In pose estimation, CenterNet extends this idea to detect human joints as keypoints.
+                    </p>
+                    <h3>Key Components in Pose Estimation</h3>
+                    <ul>
+                        <li><b>Joint Heatmap:</b> Each joint type is treated as a separate class. If there are k joints,
+                            the heatmap has k channels.</li>
+                        <li><b>Joint Offset:</b> Refines the predicted positions of joints to improve accuracy.</li>
+                        <li><b>Joint Locations:</b> Predicts the positions of joints relative to the object center. For
+                            k joints in 2D space, 2k values are predicted.</li>
+                    </ul>
+                    <h3>Decoding in Pose Estimation</h3>
+                    <p>
+                        Decoding involves extracting keypoints from the heatmap based on a threshold value (e.g., 0.1).
+                        These keypoints are then mapped to the object center using the predicted joint locations.
+                    </p>
+                    <p>
+                        The mapping is performed by minimizing the distance between predicted joints and object centers.
+                        The heatmap prediction determines the final keypoints.
+                    </p>
+                    <p>
+                        Finally, each object center is associated with its corresponding keypoints, completing the pose
+                        estimation process.
+                    </p>
+                </div>
+                <div class="section" id="centernet-results">
+                    <h2>CenterNet Results</h2>
+                    <p>
+                        CenterNet demonstrates a strong balance between speed and accuracy, outperforming several
+                        state-of-the-art object detection models.
+                    </p>
+                    <p>
+                        The speed vs. accuracy trade-off shows that CenterNet achieves higher Average Precision (AP)
+                        with competitive inference time.
+                    </p>
+                    <p>
+                        AP (Average Precision) is the standard metric used to evaluate object detection performance.
+                    </p>
+                    <h3>Inference Strategies for AP Calculation</h3>
+                    <ul>
+                        <li><b>NA:</b> Inference using the original image.</li>
+                        <li><b>F:</b> Inference using both original and flipped images, with predictions averaged.</li>
+                        <li><b>MS:</b> Inference using original, flipped, and multi-scale images, followed by
+                            Non-Maximum Suppression (NMS).</li>
+                    </ul>
+                </div>
+                <div class="section" id="inference-strategies-and-sample-prediction">
+                    <h2>Inference Strategies and Sample Prediction</h2>
+                    <p>
+                        CenterNet uses three augmentation strategies for Average Precision (AP) calculation:
+                    </p>
+                    <ul>
+                        <li><b>NA:</b> Inference using the original image.</li>
+                        <li><b>F:</b> Inference using both original and flipped images, with predictions averaged.</li>
+                        <li><b>MS:</b> Inference using original, flipped, and multi-scale images, followed by
+                            Non-Maximum Suppression (NMS).</li>
+                    </ul>
+                    <p>
+                        The FPS values are reported using images of size 512 × 512 on a TITAN-V GPU.
+                    </p>
+                    <h3>Sample Prediction</h3>
+                    <p>
+                        Below are sample predictions from the CenterNet model for object detection (first row) and pose
+                        estimation (second and third rows).
+                    </p>
+                </div>
+                <div class="section" id="centernet-model-inference-using-tensorflow">
+                    <h2>CenterNet Model Inference using TensorFlow</h2>
+                    <p>
+                        Although the official implementation is available on GitHub, we can use TensorFlow Hub to load
+                        pre-trained CenterNet models and perform inference.
+                    </p>
+                    <h3>Import Libraries</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>import cv2
+import numpy as np
+import tensorflow as tf
+import tensorflow_hub as hub
+import matplotlib.pyplot as plt
+import urllib</code></pre>
+                    </div>
+                    <h3>Select CenterNet Models</h3>
+                    <p>
+                        TensorFlow Hub provides several pre-trained CenterNet models:
+                    </p>
+                    <ul>
+                        <li>ResNet18</li>
+                        <li>ResNet50</li>
+                        <li>ResNet101</li>
+                        <li>DLA-34</li>
+                        <li>Hourglass104</li>
+                    </ul>
+                    <p>
+                        Here, we use ResNet101 and Hourglass104 for inference.
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>models = {
+    'Resnet101': 'https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1',
+    'HourGlass104': 'https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1'
+}</code></pre>
+                    </div>
+                    <h3>Download Images</h3>
+                    <p>
+                        Provide image URLs and download them:
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>images = [
+    'https://farm7.staticflickr.com/6073/6032446158_85fa667cd2_z.jpg',
+    'https://farm9.staticflickr.com/8538/8678472399_886f8eabec_z.jpg',
+    'https://farm6.staticflickr.com/5485/10028794463_d8cbb38932_z.jpg',
+    'https://farm4.staticflickr.com/3057/2475401198_0a342a907e_z.jpg'
+]
+
+# Download images
+for i in range(len(images)):
+    urllib.request.urlretrieve(images[i], "img{}.jpg".format(i+1))</code></pre>
+                    </div>
+                    <h3>Read Images</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>img1 = cv2.imread('img1.jpg')
+img2 = cv2.imread('img2.jpg')
+img3 = cv2.imread('img3.jpg')
+img4 = cv2.imread('img4.jpg')</code></pre>
+                    </div>
+                    <h3>Plot Images</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>                        def plot_images(img_list, title=None, row=1, column=2, fig_size=(10, 15)):
+                            plt.figure(figsize=fig_size)
+                            for i, img in enumerate(img_list):
+                                plt.subplot(row, column, i+1)
+                                plt.imshow(img[...,::-1])
+        plt.axis('off')
+        plt.title(title[i] if title else 'img{}'.format(i+1))
+    plt.show()</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="coco-classes">
+                    <h2>COCO Classes</h2>
+                    <p>
+                        TensorFlow models are trained on the COCO dataset. Therefore, we need a mapping of class IDs to
+                        class names.
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>category_index = {
+    1: 'person', 2: 'bicycle', 3: 'car', 4: 'motorcycle',
+    5: 'airplane', 6: 'bus', 7: 'train', 8: 'truck', 9: 'boat',
+    10: 'traffic light', 11: 'fire hydrant', 13: 'stop sign',
+    ...
+    90: 'toothbrush'
+}</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="class-ids-to-color-ids">
+                    <h2>Class IDs to Color IDs</h2>
+                    <p>
+                        To visualize detections, we assign different colors to each class.
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>R = np.array(np.arange(0, 256, 63))
+G = np.roll(R, 2)
+B = np.roll(R, 4)
+
+COLOR_IDS = np.array(np.meshgrid(R, G, B)).T.reshape(-1, 3)</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="load-model-from-tensorflow-hub">
+                    <h2>Load Model from TensorFlow Hub</h2>
+                    <p>
+                        Load pre-trained CenterNet models using TensorFlow Hub:
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code># ResNet101
+resnet = hub.load(models['Resnet101'])
+
+# Hourglass104
+hourglass = hub.load(models['HourGlass104'])</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="run-inference">
+                    <h2>Run Inference</h2>
+                    <p>
+                        The inference result is a dictionary containing:
+                    </p>
+                    <ul>
+                        <li>Number of detections</li>
+                        <li>Detection boxes</li>
+                        <li>Detection scores</li>
+                        <li>Detection classes</li>
+                    </ul>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>result_hourglass = hourglass(np.array([img1]))</code></pre>
+                    </div>
+                    <p>
+                        Check the keys:
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>result_hourglass.keys()</code></pre>
+                    </div>
+                    <p>
+                        Check output shapes:
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>print(result_hourglass['num_detections'].shape)
+print(result_hourglass['detection_boxes'].shape)
+print(result_hourglass['detection_scores'].shape)
+print(result_hourglass['detection_classes'].shape)</code></pre>
+                    </div>
+                    <p>
+                        Typically, the model predicts up to 100 bounding boxes.
+                    </p>
+                </div>
+                <div class="section" id="convert-tensors-to-numpy">
+                    <h2>Convert Tensors to NumPy</h2>
+                    <p>
+                        Convert TensorFlow outputs into NumPy arrays for easier handling:
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>def to_numpy(prediction):
+    bboxes = prediction['detection_boxes'][0].numpy()
+    scores = prediction['detection_scores'][0].numpy()
+    classes = prediction['detection_classes'][0].numpy().astype(int)
+    return bboxes, scores, classes</code></pre>
+                    </div>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>bboxes, scores, classes = to_numpy(result_hourglass)</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="filtering-and-processing-predictions">
+                    <h2>Filtering and Processing Predictions</h2>
+                    <h3>Print Sample Predictions</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>print_count = 5
+bboxes, scores, classes = to_numpy(result_hourglass)
+
+print('detection_boxes:\n{}'.format(bboxes[:print_count]))
+print('detection_scores:\n{}'.format(scores[:print_count]))
+print('detection_classes:\n{}'.format(classes[:print_count]))</code></pre>
+                    </div>
+                    <h3>Filter Confident Predictions</h3>
+                    <p>
+                        To retain only high-confidence detections, we filter predictions based on a threshold score.
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>def filter_detections_on_score(boxes, scores, classes, score_thresh=0.3):
+    ids = np.where(scores &gt;= score_thresh)
+    return boxes[ids], scores[ids], classes[ids]
+
+score_thresh = 0.30
+bboxes, scores, classes = filter_detections_on_score(bboxes, scores, classes, score_thresh)</code></pre>
+                    </div>
+                    <h3>Convert Normalized Coordinates to Pixel Values</h3>
+                    <p>
+                        Bounding box coordinates are normalized. We convert them into pixel values based on image
+                        dimensions.
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>def normalize_to_pixels_bboxs(bboxes, img):
+    img_height, img_width, _ = img.shape
+    bboxes[:, 0] *= img_height
+    bboxes[:, 1] *= img_width
+    bboxes[:, 2] *= img_height
+    bboxes[:, 3] *= img_width
+    return bboxes.astype(int)
+
+bboxes = normalize_to_pixels_bboxs(bboxes, img1)</code></pre>
+                    </div>
+                    <h3>Annotate Predictions on Image</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>def add_prediction_to_image(img, bboxes, scores, classes, id_class_map=category_index, colors=COLOR_IDS):
+    img_with_bbox = img.copy()
+    for box, score, cls in zip(bboxes, scores, classes):
+        top, left, bottom, right = box
+        class_name = id_class_map[cls]
+
+        color = tuple(colors[cls % len(COLOR_IDS)].tolist())[::-1]
+        img_with_bbox = cv2.rectangle(img_with_bbox, (left, top), (right, bottom), color, 2)
+
+        display_txt = '{}: {:.2f}'.format(class_name, score)
+        img_with_bbox = cv2.putText(img_with_bbox, display_txt, (left, top), 
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+
+    return img_with_bbox</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="wrap-up-inference-annotation-and-plotting">
+                    <h2>Wrap-Up: Inference, Annotation, and Plotting</h2>
+                    <p>
+                        Now we combine all steps into a single pipeline for inference, filtering, and visualization.
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>def infer_and_add_prediction_to_image(img, model, score_thresh=0.3):
+    prediction = model(np.array([img]))
+    bboxes, scores, classes = to_numpy(prediction)
+
+    bboxes, scores, classes = filter_detections_on_score(bboxes, scores, classes, score_thresh)
+    boxes = normalize_to_pixels_bboxs(bboxes, img)
+
+    img_with_bboxes = add_prediction_to_image(img, boxes, scores, classes)
+    return img_with_bboxes</code></pre>
+                    </div>
+                    <h3>Run on ResNet Model</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>annotated_img = infer_and_add_prediction_to_image(img1, resnet)
+plot_images([annotated_img], ['ResNet 101'], row=1, column=1, fig_size=(10, 10))</code></pre>
+                    </div>
+                    <h3>Compare Hourglass and ResNet</h3>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>def show_hourglass_resnet_inference(img, score_thresh=0.3):
+    hourglass_infer = infer_and_add_prediction_to_image(img, hourglass)
+    resnet_infer = infer_and_add_prediction_to_image(img, resnet)
+
+    image_list = [hourglass_infer, resnet_infer]
+    titles = ['Hourglass 104', 'ResNet 101']
+
+    plot_images(image_list, titles, row=1, column=2, fig_size=(20, 10))</code></pre>
+                    </div>
+                </div>
+                <div class="section" id="results">
+                    <h2>Results</h2>
+                    <p>
+                        We can now run the model on multiple images:
+                    </p>
+                    <div class="code-box">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>show_hourglass_resnet_inference(img1)
+show_hourglass_resnet_inference(img2)
+show_hourglass_resnet_inference(img3)
+show_hourglass_resnet_inference(img4)</code></pre>
+                    </div>
+                    <p>
+                        From the results, we observe that the Hourglass-104 model generally performs better than
+                        ResNet-101.
+                    </p>
+                </div>
+                <div class="section" id="conclusion">
+                    <h2>Conclusion</h2>
+                    <ul>
+                        <li>CenterNet (Objects as Points) is an anchor-free object detector with strong generalization
+                            ability.</li>
+                        <li>It can be extended to tasks like pose estimation and 3D object detection.</li>
+                        <li>It uses heatmaps to detect object centers, eliminating the need for NMS in some cases.</li>
+                        <li>TensorFlow Hub provides pre-trained CenterNet models for easy inference and fine-tuning.
+                        </li>
+                    </ul>
+
+
+
+                </div>
+
+            </article>
+        </div>
+        <!-- Right Advertisement Space -->
+        <aside class="ad-panel right-ad">
+            <div class="ad-card">
+                <div class="ad-title">More from MDS Space</div>
+                <img alt="Book"
+                    src="https://media.licdn.com/dms/image/v2/D562DAQE82HKkXcGLnw/profile-treasury-image-shrink_480_480/B56Z0zfrUAKsAM-/0/1774685435677?e=1775293200&v=beta&t=SWrPCBaWahvh2q5qGAljGo3AdITAHSlIzH9sPzb9QO4" />
+                <div class="ad-desc">Read our latest blogs on AI</div>
+                <button class="ad-btn"
+                    onclick="window.open('https://mdshafaque56.github.io/MD-s-Space/blogsy.html', '_blank')">Read
+                    More</button>
+            </div>
+            <div class="ad-card">
+                <div class="ad-title">Ask Questions</div>
+                <img alt="Pro"
+                    src="https://media.licdn.com/dms/image/v2/D4D2DAQFNPiLixHIF3A/profile-treasury-image-shrink_480_480/B4DZrWVSYyJIAM-/0/1764532498502?e=1775293200&v=beta&t=uDWSkmrrcYIDyalvfb9M8_NTr8gS5YY50uKFaf3pjCo" />
+                <div class="ad-desc">Ask questions and get answers</div>
+                <button class="ad-btn" onclick="window.open('https://mdshafaque56.github.io/MD-s-Space/')">Ask
+                    Now</button>
+            </div>
+            <div class="ad-card">
+                <div class="ad-title">Ad</div>
+                <video src="WhatsApp Video 2026-03-26 at 23.51.12.mp4" autoplay muted loop playsinline></video>
+                <div class="ad-desc">Barakah Umrah Services</div>
+                <button class="ad-btn" onclick="window.location.href='tel:9076747018'">Learn More</button>
+            </div>
+
+        </aside>
+    </main>
+    <script>
+        // --- Theme Toggle Logic ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggleBtn');
+
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.removeAttribute('data-theme');
+                btn.innerHTML = "🌙 Dark";
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerHTML = "☀️ Light";
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Initialize theme based on preference or system
+        if (localStorage.getItem('theme') === 'dark' ||
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeToggleBtn').innerHTML = "☀️ Light";
+        }
+
+        // --- Copy Code Logic ---
+        function copyCode(btn) {
+            const preContainer = btn.closest('.code-box').querySelector('pre');
+            const code = preContainer.innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copied! ✨";
+                btn.style.background = "var(--accent)";
+                btn.style.borderColor = "var(--accent)";
+                btn.style.color = "white";
+                setTimeout(() => {
+                    btn.innerText = "Copy";
+                    btn.style.background = "";
+                    btn.style.borderColor = "";
+                    btn.style.color = "";
+                }, 2000);
+            });
+        }
+
+        // --- Progress Bar Logic ---
+        window.addEventListener("scroll", () => {
+            let scrollTop = document.documentElement.scrollTop;
+            let scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrollPercentage = (scrollTop / scrollHeight) * 100;
+            document.getElementById("progressBar").style.width = scrollPercentage + "%";
+        });
+
+        // --- Active Section Highlight Logic ---
+        const sections = document.querySelectorAll(".section");
+        const links = document.querySelectorAll(".sidebar nav a");
+
+        // IntersectionObserver for active section tracking
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -60% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+
+                    // Update active link in sidebar
+                    links.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + id) {
+                            link.classList.add('active');
+                        }
+                    });
+
+                    // Update Title in Navbar dynamically based on section
+                    const sectionTitleText = entry.target.querySelector('h2').innerText;
+                    document.querySelector('.nav-title').innerText = sectionTitleText;
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(sec => {
+            observer.observe(sec);
+        });
+
+        // Initial setup for nav title
+        if (sections.length > 0) {
+            document.querySelector('.nav-title').innerText = sections[0].querySelector('h2').innerText;
+        }
+
+    </script>
+</body>
+
+</html>
