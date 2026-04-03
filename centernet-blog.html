@@ -571,6 +571,254 @@
                 padding: 100px 20px 60px;
             }
         }
+
+        /* --- Custom Inputs & Controls --- */
+        .ad-card .subscribe-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .ad-card .subscribe-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+        }
+
+        /* --- Footer Styles --- */
+        .site-footer {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            text-align: center;
+            background: rgba(var(--card-bg), 0.3);
+            border-radius: 16px;
+            padding: 40px 20px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .footer-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-profile img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            box-shadow: 0 4px 10px rgba(255, 122, 0, 0.2);
+        }
+
+        .footer-details {
+            text-align: left;
+        }
+
+        .footer-details h3 {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .footer-details p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 99px;
+            border: 1px solid var(--border-color);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 122, 0, 0.1);
+        }
+
+        .footer-links svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .footer-bottom {
+            margin-top: 24px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            width: 100%;
+            padding-top: 24px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        /* --- Audio Controls Widget --- */
+        .audio-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(var(--card-bg), 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 99px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .audio-controls:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .audio-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .audio-btn:hover {
+            background: rgba(255, 122, 0, 0.1);
+            color: var(--accent);
+        }
+
+        .audio-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .audio-status {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* --- Custom Audio Select --- */
+        .custom-select {
+            position: relative;
+            width: 180px;
+            font-size: 0.85rem;
+        }
+
+        .select-selected {
+            background: rgba(255, 122, 0, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            padding: 6px 30px 6px 12px;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff7a00" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 4px center;
+            background-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .select-selected:hover {
+            background-color: rgba(255, 122, 0, 0.1);
+        }
+
+        .select-selected.select-arrow-active {
+            box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.3);
+        }
+
+        .select-items {
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            bottom: 100%;
+            left: 0;
+            width: 240px;
+            z-index: 99;
+            margin-bottom: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .select-items div {
+            color: var(--text-main);
+            padding: 10px 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .select-items div:last-child {
+            border-bottom: none;
+        }
+
+        .select-items div:hover {
+            background-color: rgba(255, 122, 0, 0.15);
+            color: var(--accent);
+        }
+
+        .select-hide {
+            display: none;
+        }
+
+        .select-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .select-items::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .select-items::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
     </style>
 </head>
 
@@ -642,7 +890,7 @@
                         points. This approach is often more versatile than traditional anchor-based methods, making it
                         easier to adapt for tasks like pose estimation and segmentation. </p>
                     <div class="meta" style="margin-top: 1.5rem;">
-                        <span>📅 March 28, 2026</span>
+                        <span>📅 April 28, 2026</span>
                         <span>•</span>
                         <span>✍️ MD Shafaque</span>
                         <span>•</span>
@@ -1443,11 +1691,68 @@ show_hourglass_resnet_inference(img4)</code></pre>
 
 
                 </div>
+                <!-- Beautiful Open Sourced Footer -->
+                <footer class="site-footer">
+                    <div class="footer-profile">
+                        <img alt="Md Shafaque"
+                            src="https://media.licdn.com/dms/image/v2/D4D2DAQFNPiLixHIF3A/profile-treasury-image-shrink_480_480/B4DZrWVSYyJIAM-/0/1764532498502?e=1775293200&v=beta&t=uDWSkmrrcYIDyalvfb9M8_NTr8gS5YY50uKFaf3pjCo" />
+                        <div class="footer-details">
+                            <h3>Md Shafaque</h3>
+                            <p>AI/ML Enthusiast</p>
+                        </div>
+                    </div>
+                    <div class="footer-links">
+                        <a href="https://github.com/mdshafaque56" rel="noopener noreferrer" target="_blank">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" viewbox="0 0 24 24">
+                                <path
+                                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                </path>
+                            </svg>
+                            GitHub
+                        </a>
+                        <a href="https://linkedin.com/in/md-shafaque-37973b280/" rel="noopener noreferrer"
+                            target="_blank">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" viewbox="0 0 24 24">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect height="12" width="4" x="2" y="9"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                            LinkedIn
+                        </a>
+                        <a href="https://mdshafaque56.github.io/MD-s-Space/blogsy.html" rel="noopener noreferrer"
+                            target="_blank">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" viewbox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                </path>
+                                <path d="M2 12h20"></path>
+                            </svg>
+                            MDS Space
+                        </a>
+                    </div>
+                    <div class="footer-bottom">
+                        © 2026 Md Shafaque. All rights reserved. <br>
+                        Open Sourced with <span style="color:var(--accent);">❤️</span> for the community.
+                        <br/></div>
+                </footer>
 
             </article>
         </div>
         <!-- Right Advertisement Space -->
         <aside class="ad-panel right-ad">
+            <div class="ad-card">
+                <div class="ad-title">Subscribe for Updates</div>
+                <div class="ad-desc" style="margin-bottom: 2px;">Get notified about new blogs, articles, and updates!
+                </div>
+                <form class="subscribe-form" id="subscribeForm" style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                    <input type="email" id="subscriberEmail" class="subscribe-input" placeholder="Enter your email" required />
+                    <button type="submit" class="ad-btn" id="subscribeBtn">Subscribe</button>
+                </form>
+            </div>
             <div class="ad-card">
                 <div class="ad-title">More from MDS Space</div>
                 <img alt="Book"
@@ -1473,7 +1778,42 @@ show_hourglass_resnet_inference(img4)</code></pre>
             </div>
 
         </aside>
+
+        <!-- Audio Controls Widget -->
+        <div class="audio-controls" id="audioControls">
+            <div class="custom-select" id="customAudioSelect">
+                <div class="select-selected" id="selectSelected">Read Full Article</div>
+                <div class="select-items select-hide" id="selectItems"></div>
+            </div>
+            <button class="audio-btn" id="btnAudioPlay" title="Play / Resume">
+                <svg viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            </button>
+            <button class="audio-btn" id="btnAudioPause" title="Pause" style="display:none;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+            </button>
+            <button class="audio-btn" id="btnAudioStop" title="Stop">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6h12v12H6z" />
+                </svg>
+            </button>
+            <div class="audio-status" id="audioStatus">Ready</div>
+        </div>
+
     </main>
+
+    <!-- EmailJS Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        (function() {
+            // Initialize EmailJS with your Public Key
+            emailjs.init("bttg6o-fFGRjOF5azyh");
+        })();
+    </script>
+    
     <script>
         // --- Theme Toggle Logic ---
         function toggleTheme() {
@@ -1563,6 +1903,209 @@ show_hourglass_resnet_inference(img4)</code></pre>
         // Initial setup for nav title
         if (sections.length > 0) {
             document.querySelector('.nav-title').innerText = sections[0].querySelector('h2').innerText;
+        }
+
+        // --- Read Aloud Feature Logic ---
+        const btnAudioPlay = document.getElementById('btnAudioPlay');
+        const btnAudioPause = document.getElementById('btnAudioPause');
+        const btnAudioStop = document.getElementById('btnAudioStop');
+        const audioStatus = document.getElementById('audioStatus');
+
+        const customAudioSelect = document.getElementById('customAudioSelect');
+        const selectSelected = document.getElementById('selectSelected');
+        const selectItems = document.getElementById('selectItems');
+        let selectedSectionValue = "full";
+
+        let synth = window.speechSynthesis;
+        let utterance = null;
+        let isReading = false;
+
+        // Populate the custom dropdown with section headings
+        function populateAudioSections() {
+            // Default "Read Full Article" option
+            const fullOption = document.createElement('div');
+            fullOption.innerHTML = "Read Full Article";
+            fullOption.dataset.value = "full";
+            fullOption.addEventListener("click", handleSelectionSelect);
+            selectItems.appendChild(fullOption);
+
+            const sections = document.querySelectorAll('.section h2, .section h3');
+            sections.forEach((heading, index) => {
+                const optionDiv = document.createElement('div');
+                const parentSection = heading.closest('.section');
+
+                let valId = "";
+                if (parentSection && parentSection.id) {
+                    valId = parentSection.id;
+                } else {
+                    valId = `section-${index}`;
+                    if (parentSection) parentSection.id = valId;
+                    else heading.id = valId;
+                }
+
+                optionDiv.dataset.value = valId;
+                optionDiv.innerHTML = heading.textContent;
+                optionDiv.addEventListener("click", handleSelectionSelect);
+                selectItems.appendChild(optionDiv);
+            });
+        }
+
+        function handleSelectionSelect(e) {
+            selectedSectionValue = this.dataset.value;
+            selectSelected.innerHTML = this.innerHTML;
+            selectSelected.classList.remove("select-arrow-active");
+            selectItems.classList.add("select-hide");
+
+            // Cancel current reading if section changes
+            if (synth) synth.cancel();
+            utterance = null;
+            isReading = false;
+            audioStatus.innerText = "Ready";
+            btnAudioPlay.style.display = 'block';
+            btnAudioPause.style.display = 'none';
+        }
+
+        populateAudioSections();
+
+        // Custom Dropdown Open/Close
+        selectSelected.addEventListener("click", function (e) {
+            e.stopPropagation();
+            this.classList.toggle("select-arrow-active");
+            selectItems.classList.toggle("select-hide");
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (e) {
+            if (!customAudioSelect.contains(e.target)) {
+                selectSelected.classList.remove("select-arrow-active");
+                selectItems.classList.add("select-hide");
+            }
+        });
+
+        function extractReadableText() {
+            let container = null;
+
+            if (selectedSectionValue === "full") {
+                container = document.querySelector('article');
+            } else {
+                container = document.getElementById(selectedSectionValue);
+            }
+
+            if (!container) return "No content found.";
+
+            // Clone container to manipulate
+            const clone = container.cloneNode(true);
+
+            // Remove math and code blocks
+            const elementsToRemove = clone.querySelectorAll('.equation-box, .code-box, pre, code');
+            elementsToRemove.forEach(el => el.remove());
+
+            return clone.innerText || clone.textContent;
+        }
+
+        function initUtterance() {
+            const textToRead = extractReadableText();
+            utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.rate = 0.95; // Slightly slower for technical reading
+
+            utterance.onend = () => {
+                isReading = false;
+                audioStatus.innerText = "Done";
+                btnAudioPlay.style.display = 'block';
+                btnAudioPause.style.display = 'none';
+                utterance = null; // Reset utterance so it reads from start when clicked again
+            };
+
+            utterance.onerror = (e) => {
+                console.error("Speech Synthesis Error:", e);
+                isReading = false;
+                audioStatus.innerText = "Error";
+                btnAudioPlay.style.display = 'block';
+                btnAudioPause.style.display = 'none';
+            };
+        }
+
+        btnAudioPlay.addEventListener('click', () => {
+            // Restart if utterance ended or didn't exist
+            if (!utterance) {
+                initUtterance();
+                synth.speak(utterance);
+            } else if (synth.paused) {
+                synth.resume();
+            } else if (!synth.speaking) {
+                synth.speak(utterance);
+            }
+
+            isReading = true;
+            audioStatus.innerText = "Reading";
+            btnAudioPlay.style.display = 'none';
+            btnAudioPause.style.display = 'block';
+        });
+
+        btnAudioPause.addEventListener('click', () => {
+            if (synth.speaking && !synth.paused) {
+                synth.pause();
+                isReading = false;
+                audioStatus.innerText = "Paused";
+                btnAudioPlay.style.display = 'block';
+                btnAudioPause.style.display = 'none';
+            }
+        });
+
+        btnAudioStop.addEventListener('click', () => {
+            synth.cancel();
+            utterance = null;
+            isReading = false;
+            audioStatus.innerText = "Ready";
+            btnAudioPlay.style.display = 'block';
+            btnAudioPause.style.display = 'none';
+        });
+
+        // Ensure speech is cancelled when page is closed/refreshed
+        window.addEventListener("beforeunload", () => {
+            if (synth) synth.cancel();
+        });
+
+
+        // --- Subscribe Form Logic via EmailJS ---
+        const subscribeForm = document.getElementById('subscribeForm');
+        if (subscribeForm) {
+            subscribeForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const emailInput = document.getElementById('subscriberEmail').value.trim();
+                const btn = document.getElementById('subscribeBtn');
+                const originalText = btn.innerText;
+
+                btn.innerText = "Subscribing...";
+                btn.disabled = true;
+
+                // Configure template parameters.
+                // Using names that match your existing template expected by your portfolio
+                const templateParams = {
+                    name: "New Blog Subscriber",
+                    email: emailInput,
+                    message: `A new user with email ${emailInput} just subscribed from the blog side-card!`,
+                    title: "🔔 New Blog Subscription"
+                };
+
+                // Send Email
+                emailjs.send(
+                    "service_59uk6fj",
+                    "template_sd8ao7m",
+                    templateParams,
+                    "0B7ZjSoQX0Kszvd9R"
+                )
+                    .then(() => {
+                        subscribeForm.innerHTML = '<div style="color:var(--accent); font-weight:600; font-size:0.9rem; padding: 10px 0; text-align: center;">Subscribed successfully! 🎉</div>';
+                    })
+                    .catch((error) => {
+                        console.error("EmailJS Error:", error);
+                        btn.innerText = "Error - Try Again";
+                        btn.disabled = false;
+                        alert("There was an error subscribing. Please try again later.");
+                    });
+            });
         }
 
     </script>
