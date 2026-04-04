@@ -1005,6 +1005,58 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* --- Mobile Subscribe Card --- */
+        .mobile-subscribe-card {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            text-align: left;
+        }
+
+        .mobile-subscribe-card .subscribe-input {
+            background: var(--bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .mobile-subscribe-card .subscribe-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+        }
+
+        @media (max-width: 1100px) {
+            .mobile-subscribe-card {
+                display: block;
+            }
+        }
+
+
+        /* --- Mobile Navigation Fix --- */
+        @media (max-width: 860px) {
+            .mobile-menu-btn {
+                display: flex !important;
+            }
+            .sidebar {
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .sidebar.open {
+                transform: translateX(0) !important;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.2) !important;
+            }
+        }
     </style>
 </head>
 
@@ -1148,6 +1200,15 @@
                         <span>⏳ 45 min read</span>
                     </div>
                 </header>
+                <!-- Mobile Subscribe Card (Visible only on mobile) -->
+                <div class="mobile-subscribe-card" id="mobileSubscribeCard">
+                    <div class="ad-title" style="font-weight: 600; margin-bottom: 5px; font-size: 1.1rem;">Subscribe for Updates</div>
+                    <div class="ad-desc" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Get notified about new blogs, articles, and updates!</div>
+                    <form class="subscribe-form" id="mobileSubscribeForm" style="display: flex; gap: 10px;">
+                        <input type="email" id="mobileSubscriberEmail" class="subscribe-input" placeholder="Enter your email" required style="flex: 1;" />
+                        <button type="submit" class="ad-btn" id="mobileSubscribeBtn" style="padding: 10px 20px; border-radius: 8px; font-size: 0.9rem;">Subscribe</button>
+                    </form>
+                </div>
                 <img alt="Transformer Architecture"
                     src="https://miro.medium.com/v2/resize:fit:360/format:webp/1*ZeprNLy51XytmCDFX0RFbg.png"
                     width="360" />
@@ -5151,6 +5212,43 @@
                     .catch((error) => {
                         console.error("EmailJS Error:", error);
                         btn.innerText = "Error - Try Again";
+                        btn.disabled = false;
+                        alert("There was an error subscribing. Please try again later.");
+                    });
+            });
+        }
+
+        // --- Mobile Subscribe Form Logic via EmailJS ---
+        const mobileSubscribeForm = document.getElementById('mobileSubscribeForm');
+        if (mobileSubscribeForm) {
+            mobileSubscribeForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const emailInput = document.getElementById('mobileSubscriberEmail').value.trim();
+                const btn = document.getElementById('mobileSubscribeBtn');
+
+                btn.innerText = "Subscribing...";
+                btn.disabled = true;
+
+                const templateParams = {
+                    name: "New Blog Subscriber",
+                    email: emailInput,
+                    message: `A new user with email ${emailInput} just subscribed from the mobile blog header!`,
+                    title: "🔔 New Blog Subscription"
+                };
+
+                emailjs.send(
+                    "service_59uk6fj",
+                    "template_sd8ao7m",
+                    templateParams,
+                    "0B7ZjSoQX0Kszvd9R"
+                )
+                    .then(() => {
+                        mobileSubscribeForm.innerHTML = '<div style="color:var(--accent); font-weight:600; font-size:0.9rem; padding: 10px 0; text-align: left;">Subscribed successfully! 🎉</div>';
+                    })
+                    .catch((error) => {
+                        console.error("EmailJS Error:", error);
+                        btn.innerText = "Error";
                         btn.disabled = false;
                         alert("There was an error subscribing. Please try again later.");
                     });
