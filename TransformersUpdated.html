@@ -968,6 +968,43 @@
             background: var(--border-color);
             border-radius: 4px;
         }
+
+        @media (max-width: 600px) {
+            .audio-controls {
+                left: 50%;
+                right: auto;
+                bottom: 20px;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 340px;
+                padding: 8px 16px;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .audio-controls:hover {
+                transform: translateX(-50%) translateY(-2px);
+            }
+            .custom-select {
+                width: 140px;
+                font-size: 0.8rem;
+            }
+            .select-selected {
+                padding: 6px 24px 6px 10px;
+                background-size: 16px;
+                background-position: right 6px center;
+            }
+            .audio-btn {
+                padding: 4px;
+            }
+            .audio-btn svg {
+                width: 20px;
+                height: 20px;
+            }
+            .audio-status {
+                min-width: 45px;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 
