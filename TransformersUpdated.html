@@ -972,6 +972,86 @@
 </head>
 
 <body>
+    <!-- Splash Screen -->
+    <div id="splashScreen"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(30, 30, 30, 0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease-out; overflow: hidden;">
+        <div id="splashContainer"
+            style="display: flex; align-items: center; justify-content: center; transform: scale(0.9); opacity: 0; transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);">
+            <img src="a1.jpeg" alt="Profile"
+                style="width: 160px; height: 160px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 40px rgba(255, 122, 0, 0.5); z-index: 2; position: relative; border: 4px solid rgba(255, 122, 0, 0.4);">
+            <div id="splashTextContainer"
+                style="width: 0; overflow: hidden; opacity: 0; transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); white-space: nowrap;">
+
+                <div style="position: relative; display: inline-block; padding-left: 25px;">
+                    <!-- The Yellow Highlight Marker -->
+                    <div id="splashHighlight"
+                        style="position: absolute; left: 25px; top: 0; height: 100%; width: 0; background: rgba(255, 215, 0, 0.7); z-index: -1; transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px;">
+                    </div>
+
+                    <h1
+                        style="margin: 0; font-size: 3.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
+                        <span style="color: #000;">'</span><span
+                            style="background: linear-gradient(90deg, var(--accent), #ff9a44); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Transformers</span><span
+                            style="color: #000;">'</span>
+                    </h1>
+                </div>
+
+                <p style="margin: 5px 0 0 0; padding-left: 25px; font-size: 1.6rem; font-weight: 500; color: #ddd;">by
+                    <span style="position: relative; display: inline-block;">
+                        <span id="splashHighlightPink" style="position: absolute; left: -5px; top: 0; height: 100%; width: 0; background: rgba(255, 105, 180, 0.6); z-index: -1; transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px;"></span>
+                        MD Shafaque
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const splashScreen = document.getElementById('splashScreen');
+            const splashContainer = document.getElementById('splashContainer');
+            const splashTextContainer = document.getElementById('splashTextContainer');
+            const splashHighlight = document.getElementById('splashHighlight');
+            const splashHighlightPink = document.getElementById('splashHighlightPink');
+
+            // Disable scrolling while splash is active
+            document.body.style.overflow = 'hidden';
+
+            // Step 1: Fade in the photo in the center
+            setTimeout(() => {
+                splashContainer.style.opacity = '1';
+                splashContainer.style.transform = 'scale(1)';
+            }, 100);
+
+            // Step 2: Slide out text container and fade text in
+            setTimeout(() => {
+                splashTextContainer.style.width = '550px'; // expanded more to avoid text cut off
+                splashTextContainer.style.opacity = '1';
+            }, 1200);
+
+            // Step 3: Yellow Highlight sweeping across the word
+            setTimeout(() => {
+                if (splashHighlight) {
+                    splashHighlight.style.width = 'calc(100% - 30px)'; // sweeps across the text width
+                }
+            }, 2100);
+
+            // Step 4: Pink Highlight sweeping across the name
+            setTimeout(() => {
+                if (splashHighlightPink) {
+                    splashHighlightPink.style.width = 'calc(100% + 10px)'; // sweeps across the name
+                }
+            }, 2400);
+
+            // Step 5: Fade out the entire splash screen
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }, 500); // Wait for fade out transition to finish
+            }, 4200);
+        });
+    </script>
     <div id="progressBar"></div>
     <!-- Sidebar TOC -->
     <aside class="sidebar" id="sidebar">
@@ -1346,6 +1426,11 @@
                 <div class="section" id="Self-Attention Explained">
                     <h2>Self-Attention Explained</h2>
                     <p>
+                        <em>"Self-attention acts like gravity, pulling tokens together based on their relevance to each
+                            other."</em>
+                    <p>—Nitish Singh (CampusX)</p>
+                    </p>
+                    <p>
                         <strong>Self-attention</strong> is a mechanism in which each token in a sequence computes its
                         new representation
                         by directly interacting with every other token in the same sequence. The <strong>key</strong>
@@ -1353,6 +1438,21 @@
                         instead
                         of processing tokens sequentially or locally, we allow every token to look at all other tokens
                         simultaneously and decide how important each one is.
+                    </p>
+                    <p>
+                        The image explains how <strong>self-attention</strong> works using the sentence
+                        <em>“Humans Love Phones.”</em> First, each word is converted into a vector
+                        (e₁, e₂, e₃), which represents its basic meaning. Then, through self-attention,
+                        each word looks at all the other words in the sentence and decides how important
+                        they are. Based on this, new vectors (y₁, y₂, y₃) are created.
+                    </p>
+
+                    <img src="image copy 3.png" alt="">
+                    <p>
+                        These new vectors are improved versions of the original ones because they now
+                        include context. For example, the word <em>“Love”</em> understands who is loving
+                        (Humans) and what is being loved (Phones). In simple terms, the image shows how
+                        every word becomes smarter by learning from the entire sentence, not just itself.
                     </p>
                     <p>
                         Let the input be represented as:
@@ -1371,12 +1471,147 @@
                     <p>
                         So, X contains all token representations stacked together.
                     </p>
+                    <h3>Understanding Embeddings and Attention (Before Softmax)</h3>
+                    <p>
+                        Consider the sentence: <strong>“money bank flows”</strong>. Each word is first converted
+                        into a dense vector representation called an <strong>embedding</strong>.
+                    </p>
+                    <p>
+                        Let:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ e_{1} = \text{embedding}("money") \in \mathbb{R}^{d_{model}} $$
+                        $$ e_{2} = \text{embedding}("bank") \in \mathbb{R}^{d_{model}} $$
+                        $$ e_{3} = \text{embedding}("flows") \in \mathbb{R}^{d_{model}} $$
+                    </div>
+
+                    <p>
+                        These embeddings are combined into a matrix:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ X = [e_{1}; e_{2}; e_{3}] \in \mathbb{R}^{3 \times d_{model}} $$
+                    </div>
+
+
+
+                    <h4>Linear Projections to Q, K, V</h4>
+
+                    <p>
+                        The model uses three learned matrices:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ W_{Q}, W_{K}, W_{V} \in \mathbb{R}^{d_{model} \times d_{k}} $$
+                    </div>
+
+                    <p>
+                        Using these, we compute:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ Q = XW_{Q} \in \mathbb{R}^{3 \times d_{k}} $$
+                        $$ K = XW_{K} \in \mathbb{R}^{3 \times d_{k}} $$
+                        $$ V = XW_{V} \in \mathbb{R}^{3 \times d_{v}} $$
+                    </div>
+
+                    <p>
+                        Each row corresponds to a word:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ q_{1} \rightarrow \text{"money"}, q_{2} \rightarrow \text{"bank"}, q_{3} \rightarrow
+                        \text{"flows"} $$
+                        $$ k_{1} \rightarrow \text{"money"}, k_{2} \rightarrow \text{"bank"}, k_{3} \rightarrow
+                        \text{"flows"} $$
+                    </div>
+
+
+
+                    <h4>Attention Scores (Before Softmax)</h4>
+
+                    <p>
+                        We compute similarity between queries and keys using dot product:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ S = QK^{T} \in \mathbb{R}^{3 \times 3} $$
+                    </div>
+
+                    <p>
+                        Expanded:
+                    </p>
+                    <div class="equation-box">
+                        $$ S = \begin{bmatrix} q_{1} \cdot k_{1} & q_{1} \cdot k_{2} & q_{1} \cdot k_{3} \\ q_{2} \cdot
+                        k_{1} & q_{2} \cdot k_{2} & q_{2} \cdot k_{3} \\ q_{3} \cdot k_{1} & q_{3} \cdot k_{2} & q_{3}
+                        \cdot k_{3} \end{bmatrix} $$
+                    </div>
+
+                    <p>
+                        Each element:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ S_{ij} = q_{i} \cdot k_{j} $$
+                    </div>
+
+                    <p>
+                        This value represents how much word i is related to word j.
+                    </p>
+
+
+
+                    <h4>Scaling</h4>
+
+                    <p>
+                        To control the magnitude of values, we scale:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ S' = \frac{S}{\sqrt{d_{k}}} $$
+                    </div>
+
+                    <p>
+                        So each element becomes:
+                    </p>
+
+                    <div class="equation-box">
+                        $$ S'_{ij} = \frac{q_{i} \cdot k_{j}}{\sqrt{d_{k}}} $$
+                    </div>
+
+
+
+                    <h4>Interpretation (Before Softmax)</h4>
+
+                    <ul>
+                        <li>S' contains raw attention scores</li>
+                        <li>These are not probabilities</li>
+                        <li>Values can be positive or negative</li>
+                        <li>Larger values indicate stronger relationships</li>
+                    </ul>
+
+                    <p>
+                        For example:
+                    </p>
+
+                    <ul>
+                        <li>"money" may have a strong relation with "bank"</li>
+                        <li>"flows" may relate to "money"</li>
+                    </ul>
+
+                    <p>
+                        At this stage, the model has computed how strongly each word relates to others,
+                        but the values are not yet normalized. Softmax will later convert these into
+                        probabilities.
+                    </p>
+
                     <h3>1. Projection into Query, Key, and Value Spaces</h3>
                     <p>
                         Each token embedding x<sub>i</sub> is transformed into three different vectors:
                     </p>
                     <div class="equation-box">
-                        $$ q_{i} = W_{Q} x_{i} k_{i} = W_{K} x_{i} v_{i} = W_{V} x_{i} $$
+                        $$ q_{i} = W_{Q} x_{i} $$ $$ k_{i} = W_{K} x_{i} $$ $$ v_{i} = W_{V} x_{i} $$
                     </div>
                     <p>
                         Explanation of each term:
@@ -1387,6 +1622,7 @@
                         W<sub>V</sub> = weight matrix used to transform input into <strong>value</strong> space<br />
                         These matrices are learned during training
                     </p>
+
                     <p>
                         Conceptual meaning:
                     </p>
@@ -1397,6 +1633,52 @@
                         <strong>Value</strong> (v<sub>j</sub>): represents the actual content or information of that
                         token
                     </p>
+                    <h3>Analogy: Classroom Doubt Session (Understanding Q, K, V)</h3>
+
+                    <p>
+                        Imagine a classroom where a student asks a question to understand a topic better.
+                    </p>
+
+                    <ul>
+                        <li>
+                            <strong>Query (Q) = Your Question</strong><br>
+                            This represents what you are looking for.
+                            You ask: <em>“Who here can help me understand this?”</em>
+                        </li>
+
+                        <li>
+                            <strong>Key (K) = Everyone’s Identity Tag</strong><br>
+                            Each student has a label like “Math expert”, “Physics topper”, or “Good at coding”.
+                            These help you decide who is relevant to your question.
+                        </li>
+
+                        <li>
+                            <strong>Value (V) = Actual Knowledge</strong><br>
+                            Once you choose the relevant students, they don’t give labels — they give actual answers or
+                            information.
+                        </li>
+                    </ul>
+
+                    <h4>How it works</h4>
+                    <ol>
+                        <li>You (Query) compare your question with all Keys → find who is most relevant</li>
+                        <li>Assign importance (attention weights)</li>
+                        <li>Collect their Values → combine answers intelligently</li>
+                    </ol>
+
+                    <h4>One-line mapping:</h4>
+                    <p>
+                        <strong>Q = What I need</strong><br>
+                        <strong>K = Who has what I need</strong><br>
+                        <strong>V = The information I get</strong>
+                    </p>
+
+                    <p>
+                        Attention works like: <em>“Ask everyone → pick who matters → combine their answers
+                            smartly.”</em>
+                    </p>
+                    <img src="image copy 14.png" alt="">
+
                     <p>
                         After transformation:
                     </p>
@@ -1429,6 +1711,7 @@
                     <p>
                         In matrix form:
                     </p>
+                    <img src="image copy 15.png" alt="">
                     <div class="equation-box">
                         $$ S = QK^{T} $$
                     </div>
@@ -1448,8 +1731,11 @@
                     </p>
                     <h3>3. Scaling the Scores</h3>
                     <p>
+                        Please note that <strong>dot product of low dimensional vectors have low variance</strong>, and
+                        <strong>dot product of high dimensional vectors have high variance</strong>
                         The raw dot product <strong>values</strong> can become very large when d<sub>k</sub> is large.
                     </p>
+                    <img src="image copy 16.png" alt="">
                     <p>
                         Reason:
                     </p>
@@ -1463,15 +1749,67 @@
                         Larger d<sub>k</sub> → larger dot product <strong>values</strong> → <em>softmax</em> becomes
                         extremely peaked
                     </p>
+                    <div class="equation-box">
+                        $$ \text{softmax}\left(QK^T\right)_{ij} =
+                        \frac{e^{(QK^T)_{ij}}}{\sum_{j} e^{(QK^T)_{ij}}} $$
+                    </div>
+                    <p>This can generally be written as:</p>
+                    <div class="equation-box">
+                        $$ \text{softmax}\left(large number\right) =
+                        \frac{e^{large number}}{\sum_{j} e^{large number}} $$
+                    </div>
                     <p>
-                        Problem:
+                        Here comes the real <strong>problem</strong>:
                     </p>
                     <p>
-                        <em>Softmax</em>(exp(large number)) → dominates → gradients become very small → learning becomes
-                        unstable
+                        <em>Softmax</em>(large number) → dominates → gradients become very small → learning becomes
+                        unstable. So, the result out of <strong>SOFTMAX</strong> resembles <strong>one-hot (0s and
+                            1s)</strong>
+                    </p>
+                    Here please dont confuse about <strong>gradients</strong>, they're just:
+                    <div class="equation-box">
+
+                        <!-- Gradient w.r.t. attention scores -->
+                        $$ \frac{\partial \mathcal{L}}{\partial S'} $$
+
+                        <!-- Gradient flowing to Q -->
+                        $$ \frac{\partial \mathcal{L}}{\partial Q} = \frac{\partial \mathcal{L}}{\partial S'} \cdot K $$
+
+                        <!-- Gradient flowing to K -->
+                        $$ \frac{\partial \mathcal{L}}{\partial K} = \left(\frac{\partial \mathcal{L}}{\partial
+                        S'}\right)^T \cdot Q $$
+
+                        <!-- Gradients w.r.t. projection weights -->
+                        $$ \frac{\partial \mathcal{L}}{\partial W_Q} = X^T \cdot \frac{\partial \mathcal{L}}{\partial Q}
+                        $$
+
+                        $$ \frac{\partial \mathcal{L}}{\partial W_K} = X^T \cdot \frac{\partial \mathcal{L}}{\partial K}
+                        $$
+
+                    </div>
+                    <p>In easy words,
+                    <div class="equation-box">
+
+
+
+                        <p>
+                            $$ \frac{\partial \text{softmax}}{\partial x_i} = p_i(1 - p_i) $$
+                        </p>
+
+
+
+                    </div>
+                    <ul>
+                        <li>If p<sub>i</sub> ≈ 1 → gradient ≈ 0</li>
+                        <li>If p<sub>i</sub> ≈ 0 → gradient ≈ 0</li>
+                    </ul>
+
+                    <p>
+                        So gradients vanish because the distribution becomes saturated.
+                    </p>
                     </p>
                     <p>
-                        Solution:
+                        <strong>Solution</strong>:
                     </p>
                     <div class="equation-box">
                         $$ S' = S / \sqrt{d_k} $$
@@ -1485,8 +1823,10 @@
                         We apply <em>softmax</em> row-wise:
                     </p>
                     <div class="equation-box">
-                        $$ A_{ij} = \exp(S'_{ij}) / \sum \exp(S'_{ij}) $$
+                        $$ A_{ij}, or W_{ij} = \exp(S'_{ij}) / \sum \exp(S'_{ij}) $$
                     </div>
+                    <p>As shown in the following beautiful image:</p>
+                    <img src="image copy 18.png" alt="">
                     <p>
                         Explanation:
                     </p>
@@ -1499,15 +1839,17 @@
                         Properties:
                     </p>
                     <p>
-                        A<sub>ij</sub> ≥ 0 (non-negative)<br />
-                        Σ<sub>j</sub> A<sub>ij</sub> = 1 (probability distribution)
+                        A<sub>ij</sub> or, W<sub>ij</sub> ≥ 0 (non-negative)<br />
+                        Σ<sub>j</sub> A<sub>ij</sub> or, Σ<sub>j</sub> W<sub>ij</sub> = 1 (probability distribution)
                     </p>
                     <p>
                         Interpretation:
                     </p>
                     <p>
-                        A<sub>ij</sub> = importance weight assigned by token i to token j
+                        A<sub>ij</sub> or, W<sub>ij</sub> = importance weight assigned by token i to token j
                     </p>
+                    <p>We'll use A<sub>ij</sub> notation for weights now onwards in this chapter.</p>
+                    <img src="image copy 2.png" alt="">
                     <h3>5. Weighted Combination of Values</h3>
                     <p>
                         Each token aggregates information from all tokens:
@@ -1530,6 +1872,7 @@
                         More important tokens contribute more to the output representation.
                     </p>
                     <h3>6. Matrix Formulation</h3>
+                    <img src="image copy 19.png" alt="">
                     <div class="equation-box">
                         $$ Z = soft\max(QK^{T} / \sqrt{d_k}) V $$
                     </div>
@@ -1602,6 +1945,12 @@
                     <p>
                         This eliminates the need for sequential propagation.
                     </p>
+                    <p> Note...
+                        In forward pass:</p>
+                    <img src="image copy 4.png" alt="">
+                    <p>And, in backpropagation, gradients flow backward:</p>
+                    <img src="image copy 6.png" alt="">
+
                     <h3>9. Path Length and Dependency</h3>
                     <p>
                         In <strong>self-attention</strong>:
@@ -1639,6 +1988,7 @@
                         representation subspace. Instead of computing one attention distribution, the model computes
                         multiple attention distributions and combines them.
                     </p>
+                    <img src="image copy 7.png" alt="">
                     <p>
                         The motivation is that a single <em>attention mechanism</em> may not be sufficient to capture
                         all types
@@ -1646,7 +1996,7 @@
                         syntactic structure, semantic similarity, positional relationships, or <em>long-range
                             dependencies</em>.
                         <strong>Multi-head attention</strong> allows the model to learn these relationships separately
-                        and in parallel.
+                        and <strong>in parallel</strong>.
                     </p>
                     <h3>1. Input Representation</h3>
                     <p>
@@ -1668,6 +2018,7 @@
                         Instead of applying a single <em>attention mechanism</em>, we define h different attention
                         heads.
                     </p>
+                    <img src="image copy 9.png" alt="">
                     <p>
                         For each head i, separate projection matrices are used:
                     </p>
@@ -1690,18 +2041,22 @@
                     <p>
                         For each head i:
                     </p>
+                    <img src="image copy 10.png" alt="">
                     <div class="equation-box">
-                        $$ Q^{(i)} = XW_{Q}^{(i)} K^{(i)} = XW_{K}^{(i)} V^{(i)} = XW_{V}^{(i)} $$
+                        $$ Q^{(i)} = XW_{Q}^{(i)}, K^{(i)} = XW_{K}^{(i)}, V^{(i)} = XW_{V}^{(i)} $$
                     </div>
                     <p>
                         Each head independently computes attention:
                     </p>
+                    <img src="image copy 11.png" alt="">
                     <div class="equation-box">
                         $$ \text{head}_{i} = soft\max(Q^{(i)}K^{(i)T} / \sqrt{d_k}) V^{(i)} $$
                     </div>
+
                     <p>
                         Explanation of each term:
                     </p>
+
                     <p>
                         Q<sup>(i)</sup> = <strong>query</strong> matrix for head i (what each token is searching
                         for)<br />
@@ -1741,8 +2096,9 @@
                     <div class="equation-box">
                         $$ H = \text{concat}(\text{head}_1, \text{head}_2, ..., \text{head}_{h}) $$
                     </div>
+                    <img src="image copy 8.png" alt="">
                     <p>
-                        Explanation:
+                        <strong>Explanation:</strong>
                     </p>
                     <p>
                         Each head produces an output matrix of shape (n × d<sub>v</sub>)<br />
@@ -1753,6 +2109,7 @@
                     <p>
                         The concatenated output is projected back into the original embedding space:
                     </p>
+                    <img src="image copy 12.png" alt="">
                     <div class="equation-box">
                         $$ Z = HW_{O} $$
                     </div>
@@ -1770,6 +2127,8 @@
                         Allows interaction between different attention subspaces
                     </p>
                     <h3>7. Full Multi-Head Attention Formula</h3>
+                    <p>Let's now have a look over what we did by the time via <strong>bird's eye:</strong></p>
+                    <img src="image copy 13.png" alt="">
                     <div class="equation-box">
                         $$ \text{MultiHead}(Q, K, V) = \text{concat}(\text{head}_1, ..., \text{head}_{h}) W_{O} $$
                     </div>
@@ -1819,7 +2178,7 @@
                         Each z<sub>i</sub><sup>(k)</sup> captures a different relationship pattern.
                     </p>
                     <p>
-                        Examples:
+                        <strong>Examples:</strong>
                     </p>
                     <p>
                         Head 1 → focuses on nearby tokens<br />
@@ -1878,6 +2237,7 @@
                         an <strong>encoder</strong> and a <strong>decoder</strong>, each built using stacked layers
                         of identical structure.
                     </p>
+                    <img src="image copy 20.png" alt="">
                     <p>
                         The overall goal is to map an input sequence:
                     </p>
@@ -1934,6 +2294,7 @@
                         1. Multi-Head <strong>Self-Attention</strong><br />
                         2. Position-wise <strong>Feed Forward Network</strong>
                     </p>
+                    <img src="image copy 22.png" alt="">
                     <h4>2.1 Multi-Head Self-Attention in Encoder</h4>
                     <p>
                         Input to layer l:
@@ -1948,7 +2309,7 @@
                         $$ A = \text{MultiHead}(Z^{(l-1)}, Z^{(l-1)}, Z^{(l-1)}) $$
                     </div>
                     <p>
-                        Explanation:
+                        <strong>Explanation:</strong>
                     </p>
                     <p>
                         All three inputs (<strong>Query</strong>, <strong>Key</strong>, <strong>Value</strong>) come
@@ -1956,7 +2317,7 @@
                         Each token attends to all tokens including itself
                     </p>
                     <p>
-                        Output:
+                        <strong>Output:</strong>
                     </p>
                     <div class="equation-box">
                         $$ A \in \mathbb{R}^{n \times d} $$
@@ -1969,7 +2330,7 @@
                         $$ Z' = \text{LayerNorm}(Z^{(l-1)} + A) $$
                     </div>
                     <p>
-                        Explanation:
+                        <strong>Explanation:</strong>
                     </p>
                     <p>
                         <strong>Residual connection</strong> = element-wise addition of input and output<br />
@@ -1980,11 +2341,12 @@
                     <p>
                         A position-wise <strong>feed forward network</strong> is applied independently to each token:
                     </p>
+                    <img src="image copy 23.png" alt="">
                     <div class="equation-box">
                         $$ \text{FFN}(x) = \max(0, xW_1 + b_1) W_2 + b_2 $$
                     </div>
                     <p>
-                        Explanation:
+                        <strong>Explanation:</strong>
                     </p>
                     <p>
                         xW₁ + b₁ = linear transformation to higher dimension<br />
@@ -1992,7 +2354,7 @@
                         second linear layer projects back to original dimension
                     </p>
                     <p>
-                        Dimensions:
+                        <strong>Dimensions:</strong>
                     </p>
                     <p>
                         W₁ ∈ ℝ<sup>d × d<sub>ff</sub></sup><br />
@@ -2000,7 +2362,7 @@
                         d<sub>ff</sub> &gt; d (typically much larger)
                     </p>
                     <p>
-                        Output:
+                        <strong>Output:</strong>
                     </p>
                     <div class="equation-box">
                         $$ Z^{(l)} = \text{LayerNorm}(Z' + \text{FFN}(Z')) $$
@@ -2022,6 +2384,7 @@
                     <p>
                         The <strong>decoder</strong> also consists of L layers, but each layer has three subcomponents:
                     </p>
+                    <img src="image copy 25.png" alt="">
                     <p>
                         1. Masked Multi-Head <strong>Self-Attention</strong><br />
                         2. <strong>Encoder-Decoder</strong> Attention<br />
@@ -2041,7 +2404,7 @@
                         $$ \text{Mask}(i, j) = 0 if j \leq i, otherwise -\infty $$
                     </div>
                     <p>
-                        Explanation:
+                        <strong>Explanation:</strong>
                     </p>
                     <p>
                         Prevents token i from seeing future tokens j &gt; i<br />
@@ -2056,7 +2419,7 @@
                         $$ \text{Attention}(Q = Decoder, K = Encoder, V = Encoder) $$
                     </div>
                     <p>
-                        Explanation:
+                        <strong>Explanation:</strong>
                     </p>
                     <p>
                         Allows <strong>decoder</strong> to focus on relevant parts of input sequence<br />
@@ -2151,6 +2514,7 @@
                         <strong>embeddings</strong> but has no
                         information about their positions in the sequence.
                     </p>
+                    <img src="image copy 26.png" alt="">
                     <p>
                         Formally, the input to the model is:
                     </p>
@@ -2165,6 +2529,7 @@
                     <p>
                         Permutation of tokens → same attention computation → loss of sequence meaning
                     </p>
+                    <img src="image copy 27.png" alt="">
                     <p>
                         Therefore, positional information must be explicitly injected into the input representation.
                     </p>
@@ -2177,7 +2542,7 @@
                         $$ z_{i} = x_{i} + p_{i} $$
                     </div>
                     <p>
-                        Explanation of each term:
+                        <strong>Explanation of each term:</strong>
                     </p>
                     <p>
                         x<sub>i</sub> = embedding of token at position i<br />
@@ -2199,7 +2564,7 @@
                         <strong>Transformer</strong> uses a deterministic function based on sine and cosine functions.
                     </p>
                     <p>
-                        Reasons:
+                        <strong>Reasons:</strong>
                     </p>
                     <p>
                         1. Ability to generalize to sequence lengths not seen during training<br />
@@ -2207,6 +2572,7 @@
                         3. No additional parameters required
                     </p>
                     <h3>3. Sinusoidal Positional Encoding Formula</h3>
+                    <img src="image copy 28.png" alt="">
                     <div class="equation-box">
                         $$ PE(\text{pos}, 2i) = \sin(\text{pos} / 10000^{(2i/d)})
                         $$
@@ -2214,7 +2580,7 @@
                         / 10000^{(2i/d)}) $$
                     </div>
                     <p>
-                        Explanation of each term:
+                        <strong>Explanation of each term:</strong>
                     </p>
                     <p>
                         pos = position index of token in sequence (0, 1, 2, ..., n−1)<br />
@@ -2254,11 +2620,12 @@
                         This creates a spectrum of frequencies across dimensions.
                     </p>
                     <h3>5. Numerical Interpretation</h3>
+                    <img src="image copy 29.png" alt="">
                     <p>
                         Consider d = 4:
                     </p>
                     <p>
-                        Dimensions:
+                        <strong>Dimensions:</strong>
                     </p>
                     <p>
                         dimension 0 → sin(pos / 10000<sup>0</sup>) = sin(pos)<br />
@@ -2267,7 +2634,7 @@
                         dimension 3 → cos(pos / 10000<sup>0.5</sup>)
                     </p>
                     <p>
-                        Thus:
+                        <strong>Thus:</strong>
                     </p>
                     <p>
                         Lower dimensions capture fine-grained positional differences<br />
@@ -2809,7 +3176,7 @@
                     </p>
                     <h3>10. Difference from Batch Normalization</h3>
                     <p>
-                        Batch normalization:
+                        <strong>Batch normalization:</strong>
                     </p>
                     <p>
                         Normalizes across batch dimension<br />
@@ -4207,8 +4574,7 @@
                 <!-- Beautiful Open Sourced Footer -->
                 <footer class="site-footer">
                     <div class="footer-profile">
-                        <img alt="Md Shafaque"
-                            src="https://media.licdn.com/dms/image/v2/D4D2DAQFNPiLixHIF3A/profile-treasury-image-shrink_480_480/B4DZrWVSYyJIAM-/0/1764532498502?e=1775293200&amp;v=beta&amp;t=uDWSkmrrcYIDyalvfb9M8_NTr8gS5YY50uKFaf3pjCo" />
+                        <img alt="Md Shafaque" src="a1.jpeg" />
                         <div class="footer-details">
                             <h3>Md Shafaque</h3>
                             <p>AI/ML Enthusiast</p>
@@ -4260,15 +4626,16 @@
                 <div class="ad-title">Subscribe for Updates</div>
                 <div class="ad-desc" style="margin-bottom: 2px;">Get notified about new blogs, articles, and updates!
                 </div>
-                <form class="subscribe-form" id="subscribeForm" style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
-                    <input type="email" id="subscriberEmail" class="subscribe-input" placeholder="Enter your email" required />
+                <form class="subscribe-form" id="subscribeForm"
+                    style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                    <input type="email" id="subscriberEmail" class="subscribe-input" placeholder="Enter your email"
+                        required />
                     <button type="submit" class="ad-btn" id="subscribeBtn">Subscribe</button>
                 </form>
             </div>
             <div class="ad-card">
                 <div class="ad-title">More from MDS Space</div>
-                <img alt="Book"
-                    src="https://media.licdn.com/dms/image/v2/D562DAQE82HKkXcGLnw/profile-treasury-image-shrink_480_480/B56Z0zfrUAKsAM-/0/1774685435677?e=1775293200&amp;v=beta&amp;t=SWrPCBaWahvh2q5qGAljGo3AdITAHSlIzH9sPzb9QO4">
+                <img alt="Book" src="image copy 30.png">
                 <div class="ad-desc">Read our latest blogs on AI</div>
                 <button class="ad-btn"
                     onclick="window.open('https://mdshafaque56.github.io/MD-s-Space/blogsy.html', '_blank')">Read
@@ -4278,18 +4645,11 @@
             <div class="ad-card">
                 <div class="ad-title">Ask Questions</div>
                 <img alt="Pro"
-                    src="https://media.licdn.com/dms/image/v2/D4D2DAQFNPiLixHIF3A/profile-treasury-image-shrink_480_480/B4DZrWVSYyJIAM-/0/1764532498502?e=1775293200&amp;v=beta&amp;t=uDWSkmrrcYIDyalvfb9M8_NTr8gS5YY50uKFaf3pjCo">
+                    src="https://media.licdn.com/dms/image/v2/D5603AQGKu8nkCf21TQ/profile-displayphoto-scale_200_200/B56ZtNDuQQKcAg-/0/1766524380989?e=1776902400&v=beta&t=vvkhsje6nsD1QNxncvR64U7tN72ivNzO72U-PMnlcg8">
                 <div class="ad-desc">Ask questions and get answers</div>
                 <button class="ad-btn" onclick="window.open('https://mdshafaque56.github.io/MD-s-Space/')">Ask
                     Now</button>
                 </img>
-            </div>
-            <div class="ad-card">
-                <div class="ad-title">Ad</div>
-                <video autoplay="" loop="" muted="" playsinline=""
-                    src="WhatsApp Video 2026-03-26 at 23.51.12.mp4"></video>
-                <div class="ad-desc">Barakah Umrah Services</div>
-                <button class="ad-btn" onclick="window.location.href='tel:9076747018'">Learn More</button>
             </div>
         </aside>
 
@@ -4336,12 +4696,12 @@
     <!-- EmailJS Integration -->
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script>
-        (function() {
+        (function () {
             // Initialize EmailJS with your Public Key
             emailjs.init("bttg6o-fFGRjOF5azyh");
         })();
     </script>
-    
+
     <script>
         // --- Theme Toggle Logic ---
         function toggleTheme() {
