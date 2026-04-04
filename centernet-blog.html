@@ -818,11 +818,91 @@
             background: var(--border-color);
             border-radius: 4px;
         }
-
     </style>
 </head>
 
 <body>
+    <!-- Splash Screen -->
+    <div id="splashScreen"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(30, 30, 30, 0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease-out; overflow: hidden;">
+        <div id="splashContainer"
+            style="display: flex; align-items: center; justify-content: center; transform: scale(0.9); opacity: 0; transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);">
+            <img src="a1.jpeg" alt="Profile"
+                style="width: 160px; height: 160px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 40px rgba(255, 122, 0, 0.5); z-index: 2; position: relative; border: 4px solid rgba(255, 122, 0, 0.4);">
+            <div id="splashTextContainer"
+                style="width: 0; overflow: hidden; opacity: 0; transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); white-space: nowrap;">
+
+                <div style="position: relative; display: inline-block; padding-left: 25px;">
+                    <!-- The Yellow Highlight Marker -->
+                    <div id="splashHighlight"
+                        style="position: absolute; left: 25px; top: 0; height: 100%; width: 0; background: rgba(255, 215, 0, 0.7); z-index: -1; transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px;">
+                    </div>
+
+                    <h1
+                        style="margin: 0; font-size: 3.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
+                        <span style="color: #000;">'</span><span
+                            style="background: linear-gradient(90deg, var(--accent), #ff9a44); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">CenterNet</span><span
+                            style="color: #000;">'</span>
+                    </h1>
+                </div>
+
+                <p style="margin: 5px 0 0 0; padding-left: 25px; font-size: 1.6rem; font-weight: 500; color: #ddd;">by
+                    <span style="position: relative; display: inline-block;">
+                        <span id="splashHighlightPink"
+                            style="position: absolute; left: -5px; top: 0; height: 100%; width: 0; background: rgba(255, 105, 180, 0.6); z-index: -1; transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px;"></span>
+                        MD Shafaque
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const splashScreen = document.getElementById('splashScreen');
+            const splashContainer = document.getElementById('splashContainer');
+            const splashTextContainer = document.getElementById('splashTextContainer');
+            const splashHighlight = document.getElementById('splashHighlight');
+            const splashHighlightPink = document.getElementById('splashHighlightPink');
+
+            // Disable scrolling while splash is active
+            document.body.style.overflow = 'hidden';
+
+            // Step 1: Fade in the photo in the center
+            setTimeout(() => {
+                splashContainer.style.opacity = '1';
+                splashContainer.style.transform = 'scale(1)';
+            }, 100);
+
+            // Step 2: Slide out text container and fade text in
+            setTimeout(() => {
+                splashTextContainer.style.width = '550px'; // expanded more to avoid text cut off
+                splashTextContainer.style.opacity = '1';
+            }, 1200);
+
+            // Step 3: Yellow Highlight sweeping across the word
+            setTimeout(() => {
+                if (splashHighlight) {
+                    splashHighlight.style.width = 'calc(100% - 30px)'; // sweeps across the text width
+                }
+            }, 2100);
+
+            // Step 4: Pink Highlight sweeping across the name
+            setTimeout(() => {
+                if (splashHighlightPink) {
+                    splashHighlightPink.style.width = 'calc(100% + 10px)'; // sweeps across the name
+                }
+            }, 2400);
+
+            // Step 5: Fade out the entire splash screen
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    document.body.style.overflow = ''; // Re-enable scrolling
+                }, 500); // Wait for fade out transition to finish
+            }, 4200);
+        });
+    </script>
     <div id="progressBar"></div>
     <!-- Sidebar TOC -->
     <aside class="sidebar" id="sidebar">
@@ -1692,10 +1772,10 @@ show_hourglass_resnet_inference(img4)</code></pre>
 
                 </div>
                 <!-- Beautiful Open Sourced Footer -->
+                <!-- Beautiful Open Sourced Footer -->
                 <footer class="site-footer">
                     <div class="footer-profile">
-                        <img alt="Md Shafaque"
-                            src="https://media.licdn.com/dms/image/v2/D4D2DAQFNPiLixHIF3A/profile-treasury-image-shrink_480_480/B4DZrWVSYyJIAM-/0/1764532498502?e=1775293200&v=beta&t=uDWSkmrrcYIDyalvfb9M8_NTr8gS5YY50uKFaf3pjCo" />
+                        <img alt="Md Shafaque" src="a1.jpeg" />
                         <div class="footer-details">
                             <h3>Md Shafaque</h3>
                             <p>AI/ML Enthusiast</p>
@@ -1737,9 +1817,8 @@ show_hourglass_resnet_inference(img4)</code></pre>
                     <div class="footer-bottom">
                         © 2026 Md Shafaque. All rights reserved. <br>
                         Open Sourced with <span style="color:var(--accent);">❤️</span> for the community.
-                        <br/></div>
+                        </br></div>
                 </footer>
-
             </article>
         </div>
         <!-- Right Advertisement Space -->
@@ -1748,36 +1827,34 @@ show_hourglass_resnet_inference(img4)</code></pre>
                 <div class="ad-title">Subscribe for Updates</div>
                 <div class="ad-desc" style="margin-bottom: 2px;">Get notified about new blogs, articles, and updates!
                 </div>
-                <form class="subscribe-form" id="subscribeForm" style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
-                    <input type="email" id="subscriberEmail" class="subscribe-input" placeholder="Enter your email" required />
+                <form class="subscribe-form" id="subscribeForm"
+                    style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                    <input type="email" id="subscriberEmail" class="subscribe-input" placeholder="Enter your email"
+                        required />
                     <button type="submit" class="ad-btn" id="subscribeBtn">Subscribe</button>
                 </form>
             </div>
             <div class="ad-card">
                 <div class="ad-title">More from MDS Space</div>
-                <img alt="Book"
-                    src="https://media.licdn.com/dms/image/v2/D562DAQE82HKkXcGLnw/profile-treasury-image-shrink_480_480/B56Z0zfrUAKsAM-/0/1774685435677?e=1775293200&v=beta&t=SWrPCBaWahvh2q5qGAljGo3AdITAHSlIzH9sPzb9QO4" />
+                <img alt="Book" src="image copy 30.png">
                 <div class="ad-desc">Read our latest blogs on AI</div>
                 <button class="ad-btn"
                     onclick="window.open('https://mdshafaque56.github.io/MD-s-Space/blogsy.html', '_blank')">Read
                     More</button>
+                </img>
             </div>
             <div class="ad-card">
                 <div class="ad-title">Ask Questions</div>
                 <img alt="Pro"
-                    src="https://media.licdn.com/dms/image/v2/D4D2DAQFNPiLixHIF3A/profile-treasury-image-shrink_480_480/B4DZrWVSYyJIAM-/0/1764532498502?e=1775293200&v=beta&t=uDWSkmrrcYIDyalvfb9M8_NTr8gS5YY50uKFaf3pjCo" />
+                    src="https://media.licdn.com/dms/image/v2/D5603AQGKu8nkCf21TQ/profile-displayphoto-scale_200_200/B56ZtNDuQQKcAg-/0/1766524380989?e=1776902400&v=beta&t=vvkhsje6nsD1QNxncvR64U7tN72ivNzO72U-PMnlcg8">
                 <div class="ad-desc">Ask questions and get answers</div>
                 <button class="ad-btn" onclick="window.open('https://mdshafaque56.github.io/MD-s-Space/')">Ask
                     Now</button>
+                </img>
             </div>
-            <div class="ad-card">
-                <div class="ad-title">Ad</div>
-                <video src="WhatsApp Video 2026-03-26 at 23.51.12.mp4" autoplay muted loop playsinline></video>
-                <div class="ad-desc">Barakah Umrah Services</div>
-                <button class="ad-btn" onclick="window.location.href='tel:9076747018'">Learn More</button>
-            </div>
-
         </aside>
+
+
 
         <!-- Audio Controls Widget -->
         <div class="audio-controls" id="audioControls">
@@ -1808,12 +1885,12 @@ show_hourglass_resnet_inference(img4)</code></pre>
     <!-- EmailJS Integration -->
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script>
-        (function() {
+        (function () {
             // Initialize EmailJS with your Public Key
             emailjs.init("bttg6o-fFGRjOF5azyh");
         })();
     </script>
-    
+
     <script>
         // --- Theme Toggle Logic ---
         function toggleTheme() {
@@ -2112,4 +2189,3 @@ show_hourglass_resnet_inference(img4)</code></pre>
 </body>
 
 </html>
-<!-- Force Update Trigger: 04/03/2026 23:25:57 -->
