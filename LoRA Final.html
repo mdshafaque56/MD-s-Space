@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A visual and mathematical deep dive into LoRA and QLoRA, from MD's Space." />
+  <meta name="theme-color" content="#f8f5ff" />
+  <title>MD's Space | LoRA & QLoRA from First Principles</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: { scale: 1.02 },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fbfaff;
+      --bg-2: #f4efff;
+      --surface: rgba(255,255,255,.72);
+      --surface-solid: #ffffff;
+      --surface-2: rgba(246,240,255,.75);
+      --text: #211a2d;
+      --muted: #6f657c;
+      --faint: #978da3;
+      --purple: #7650e8;
+      --purple-2: #a667f2;
+      --purple-3: #d5b9ff;
+      --pink: #ee78bf;
+      --cyan: #65d9ef;
+      --green: #3abf91;
+      --orange: #f0a35b;
+      --border: rgba(112,72,175,.16);
+      --grid: rgba(112,72,175,.055);
+      --shadow-sm: 0 10px 30px rgba(73,42,120,.08);
+      --shadow: 0 28px 75px rgba(78,43,130,.14);
+      --code-bg: #171321;
+      --code-text: #f0eaff;
+      --selection: rgba(166,103,242,.25);
+      --island: #09080c;
+      --max: 920px;
+      --sidebar-open: 320px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b0910;
+      --bg-2: #120d1b;
+      --surface: rgba(24,18,34,.78);
+      --surface-solid: #17111f;
+      --surface-2: rgba(43,30,59,.68);
+      --text: #f6f0ff;
+      --muted: #b7abc4;
+      --faint: #8e829a;
+      --purple: #ae83ff;
+      --purple-2: #c592ff;
+      --purple-3: #623d8e;
+      --pink: #ff91d0;
+      --cyan: #74e5f5;
+      --green: #65d8aa;
+      --orange: #ffc184;
+      --border: rgba(196,148,255,.18);
+      --grid: rgba(195,148,255,.045);
+      --shadow-sm: 0 12px 35px rgba(0,0,0,.24);
+      --shadow: 0 32px 85px rgba(0,0,0,.38);
+      --code-bg: #08070b;
+      --code-text: #f2eaff;
+      --selection: rgba(183,132,255,.32);
+      --island: #030304;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 105px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 5%, rgba(177,112,255,.17), transparent 27rem),
+        radial-gradient(circle at 88% 15%, rgba(232,136,218,.12), transparent 32rem),
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, 42px 42px, 42px 42px, auto;
+      transition: background-color .4s ease, color .4s ease;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      width: 34rem;
+      height: 34rem;
+      border-radius: 50%;
+      filter: blur(65px);
+      opacity: .13;
+      pointer-events: none;
+      z-index: -1;
+      animation: floatOrb 16s ease-in-out infinite alternate;
+    }
+    body::before { left: -14rem; top: 30%; background: var(--purple-2); }
+    body::after { right: -15rem; bottom: -8rem; background: var(--pink); animation-delay: -6s; }
+    @keyframes floatOrb { to { transform: translate(3rem,-3rem) scale(1.08); } }
+
+    ::selection { background: var(--selection); }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+
+    /* custom cursor */
+    @media (pointer: fine) {
+      body, a, button, summary, .sidebar { cursor: none; }
+      .cursor-ring { display: block !important; }
+    }
+    .cursor-ring {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 10000;
+      border-radius: 50%;
+      transform: translate(-50%,-50%);
+    }
+    .cursor-ring { width:34px; height:34px; border:0; visibility:hidden; background:conic-gradient(from 0deg,#65e7ff,#855cff,#ff77be,#ffd36a,#65e7ff); box-shadow:0 0 20px rgba(133,92,255,.55),0 0 32px rgba(255,119,190,.28); animation:none; transition:width .14s ease,height .14s ease,filter .14s ease; will-change:transform; }
+    .cursor-ring::after { content:''; position:absolute; inset:4px; border-radius:50%; background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.95) 0 7%,rgba(255,255,255,.24) 13%,rgba(12,8,20,.88) 62%,rgba(8,5,14,.96) 100%); box-shadow:inset -5px -7px 12px rgba(0,0,0,.36),inset 4px 4px 9px rgba(255,255,255,.14); }
+    .cursor-ring.active { width:50px; height:50px; filter:saturate(1.2) brightness(1.08); }
+    .fullscreen-reminder { position:fixed; top:88px; left:50%; z-index:901; transform:translate(-50%,-7px); padding:8px 12px; border:1px solid rgba(255,255,255,.13); border-radius:999px; color:rgba(255,255,255,.9); background:rgba(9,8,12,.9); box-shadow:0 12px 35px rgba(0,0,0,.22); font:600 .72rem 'DM Sans',sans-serif; white-space:nowrap; opacity:0; pointer-events:none; animation:fullscreenHint 3.8s ease 1s both; }
+    @keyframes fullscreenHint { 0%,100% { opacity:0; transform:translate(-50%,-7px); } 18%,75% { opacity:1; transform:translate(-50%,0); } }
+
+    .reading-progress {
+      position: fixed; inset: 0 auto auto 0;
+      width: 0; height: 3px;
+      z-index: 10001;
+      background: linear-gradient(90deg, var(--cyan), var(--purple-2), var(--pink));
+      box-shadow: 0 0 12px var(--purple-2);
+    }
+
+    /* Dynamic Island */
+    .island-wrap {
+      position: fixed;
+      top: 16px; left: 50%;
+      z-index: 900;
+      transform: translateX(-50%);
+      width: 58px; height: 24px;
+      transition: width .5s cubic-bezier(.2,.8,.2,1), height .5s cubic-bezier(.2,.8,.2,1);
+    }
+    .island-ring {
+      position: absolute; inset: -4px;
+      border-radius: 999px;
+      background: conic-gradient(from var(--ring-angle), #65e7ff, #855cff, #ff77be, #ffd36a, #65e7ff);
+      animation: ringSpin 4s linear infinite;
+      filter: drop-shadow(0 0 10px rgba(164,102,243,.5));
+    }
+    @property --ring-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    @keyframes ringSpin { to { --ring-angle: 360deg; } }
+    .island {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 999px;
+      overflow: hidden;
+      color: white;
+      background: var(--island);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), 0 15px 45px rgba(0,0,0,.25);
+      transition: border-radius .35s ease;
+    }
+    .island::after {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #2c2534; box-shadow: inset 0 0 2px #87759c;
+      transition: opacity .2s;
+    }
+    .island-content {
+      position: absolute; inset: 0;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 18px;
+      padding: 10px 13px 10px 18px;
+      opacity: 0; transform: scale(.88);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .35s ease;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .island-wrap:hover, .island-wrap:focus-within, .island-wrap.open { width: min(720px, calc(100vw - 28px)); height: 64px; }
+    .island-wrap:hover .island-ring, .island-wrap:focus-within .island-ring, .island-wrap.open .island-ring { inset: -2px; }
+    .island-wrap:hover .island::after, .island-wrap:focus-within .island::after, .island-wrap.open .island::after { opacity: 0; }
+    .island-wrap:hover .island-content, .island-wrap:focus-within .island-content, .island-wrap.open .island-content { opacity: 1; transform: scale(1); pointer-events: auto; }
+    .island-brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: .9rem; }
+    .brand-gem { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 9px; background: linear-gradient(135deg,#875cff,#e979c2); box-shadow: 0 0 18px rgba(165,99,245,.45); }
+    .nav-links { display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .nav-links a, .island-actions button {
+      color: rgba(255,255,255,.78); text-decoration: none; border: 0; background: transparent;
+      padding: 8px 10px; border-radius: 999px; font: 600 .78rem 'DM Sans', sans-serif;
+      transition: background .2s, color .2s, transform .2s;
+    }
+    .nav-links a:hover, .island-actions button:hover { background: rgba(255,255,255,.11); color: #fff; transform: translateY(-1px); }
+    .home-link { background: linear-gradient(135deg,rgba(124,84,231,.35),rgba(226,104,187,.25)) !important; }
+    .island-actions { display: flex; gap: 4px; }
+    .island-actions button { display: grid; place-items: center; width: 37px; height: 37px; padding: 0; font-size: 1rem; }
+    .island-touch { display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); width:86px; height:42px; z-index:899; border:0; background:transparent; }
+
+    /* hover-only sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 50%;
+      transform: translateY(-50%);
+      z-index: 700;
+      width: 54px; height: min(72vh, 680px);
+      overflow: hidden;
+      border: 1px solid var(--border); border-left: 0;
+      border-radius: 0 24px 24px 0;
+      background: var(--surface);
+      backdrop-filter: blur(24px) saturate(150%);
+      box-shadow: var(--shadow);
+      transition: width .45s cubic-bezier(.2,.8,.2,1), background .3s;
+    }
+    .sidebar:hover, .sidebar:focus-within { width: var(--sidebar-open); }
+    .sidebar-handle {
+      position: absolute; inset: 0 auto 0 0; width: 53px;
+      display: flex; align-items: center; justify-content: center;
+      border-right: 1px solid var(--border);
+      background: linear-gradient(180deg,rgba(166,103,242,.08),rgba(238,120,191,.06));
+    }
+    .sidebar-handle span { writing-mode: vertical-rl; transform: rotate(180deg); font: 700 .72rem 'DM Sans',sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--purple); }
+    .sidebar-handle::after { content:'›'; position:absolute; top:20px; font: 700 1.3rem 'DM Sans'; color:var(--purple); transition:transform .3s; }
+    .sidebar:hover .sidebar-handle::after { transform: rotate(180deg); }
+    .sidebar-panel { margin-left:54px; width:calc(var(--sidebar-open) - 54px); height:100%; padding:22px 15px 22px 20px; display:flex; flex-direction:column; }
+    .sidebar-title { margin:0 0 13px; font:800 1rem 'DM Sans'; }
+    .toc { overflow:auto; padding-right:8px; scrollbar-width:thin; scrollbar-color:var(--purple-3) transparent; }
+    .toc a { display:block; padding:7px 10px; margin:2px 0; border-radius:10px; color:var(--muted); text-decoration:none; font:500 .78rem/1.35 'DM Sans'; transition:.2s; border-left:2px solid transparent; }
+    .toc a.level-3 { padding-left:22px; font-size:.73rem; }
+    .toc a:hover, .toc a.active { color:var(--purple); background:rgba(144,91,232,.1); border-left-color:var(--purple); }
+
+    /* hero */
+    .hero { width:min(1180px,calc(100% - 36px)); margin:0 auto; padding:155px 0 72px; text-align:center; }
+    .eyebrow { display:inline-flex; align-items:center; gap:9px; margin-bottom:18px; padding:8px 13px; border:1px solid var(--border); border-radius:999px; background:var(--surface); backdrop-filter:blur(12px); color:var(--purple); font:700 .75rem 'DM Sans'; letter-spacing:.08em; text-transform:uppercase; box-shadow:var(--shadow-sm); }
+    .eyebrow i { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green); }
+    .hero h1 { max-width:950px; margin:0 auto; font:800 clamp(3rem,8.5vw,7rem)/.98 'DM Sans',sans-serif; letter-spacing:-.065em; }
+    .gradient-text { color:transparent; background:linear-gradient(110deg,#5f3fd0 10%,#a466f0 48%,#ec78bd 88%); -webkit-background-clip:text; background-clip:text; }
+    html[data-theme="dark"] .gradient-text { background-image:linear-gradient(110deg,#d6c4ff 5%,#b98cff 48%,#ff9bd5 92%); }
+    .hero-sub { max-width:760px; margin:26px auto 0; color:var(--muted); font-size:clamp(1.06rem,2vw,1.28rem); line-height:1.75; }
+    .hero-actions { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:30px; font-family:'DM Sans'; }
+    .btn { display:inline-flex; align-items:center; gap:9px; padding:13px 18px; border:1px solid var(--border); border-radius:14px; text-decoration:none; font-weight:700; font-size:.88rem; background:var(--surface); box-shadow:var(--shadow-sm); transition:transform .2s,box-shadow .2s; }
+    .btn:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
+    .btn.primary { color:#fff; border-color:transparent; background:linear-gradient(135deg,#7650e8,#b263ec 60%,#df72bd); }
+    .hero-stats { width:min(780px,100%); margin:48px auto 0; display:grid; grid-template-columns:repeat(3,1fr); overflow:hidden; border:1px solid var(--border); border-radius:22px; background:var(--surface); backdrop-filter:blur(18px); box-shadow:var(--shadow-sm); }
+    .stat { padding:20px; border-right:1px solid var(--border); }
+    .stat:last-child {border-right:0}.stat strong{display:block;font:800 1.35rem 'DM Sans';color:var(--purple)}.stat span{color:var(--muted);font:600 .72rem 'DM Sans';text-transform:uppercase;letter-spacing:.08em}
+
+    main { width:min(var(--max),calc(100% - 40px)); margin:0 auto 120px; }
+    article { font-size:1.075rem; line-height:1.9; }
+    article > section { margin:0 0 90px; scroll-margin-top:105px; }
+    article h2, article h3, article h4 { font-family:'DM Sans',sans-serif; line-height:1.2; letter-spacing:-.035em; }
+    article h2 { margin:0 0 23px; font-size:clamp(2rem,4.8vw,3.25rem); }
+    article h3 { margin:45px 0 15px; font-size:clamp(1.35rem,3vw,1.8rem); }
+    article h4 { margin:30px 0 10px; font-size:1.1rem; color:var(--purple); }
+    article p { color:var(--muted); margin:0 0 20px; }
+    article strong { color:var(--text); }
+    .lead { font-size:1.22rem; color:var(--text); line-height:1.8; }
+    .section-num { display:block; margin-bottom:12px; color:var(--purple); font:800 .77rem 'DM Sans'; letter-spacing:.14em; text-transform:uppercase; }
+    .divider { height:1px; margin:70px 0; background:linear-gradient(90deg,transparent,var(--border),transparent); }
+
+    .card, .math-card, .analogy, .warning, .deep-note {
+      margin:27px 0; padding:24px 26px; border:1px solid var(--border); border-radius:22px;
+      background:var(--surface); backdrop-filter:blur(16px); box-shadow:var(--shadow-sm);
+    }
+    .card-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:26px 0; }
+    .card-grid .card { margin:0; }
+    .card h4:first-child, .analogy h4:first-child, .warning h4:first-child, .deep-note h4:first-child { margin-top:0; }
+    .math-card { position:relative; overflow:auto; border-left:4px solid var(--purple); background:linear-gradient(135deg,rgba(146,92,232,.1),var(--surface)); text-align:center; color:var(--text); }
+    .math-label { display:block; margin-bottom:12px; color:var(--purple); text-align:left; font:800 .69rem 'DM Sans'; letter-spacing:.12em; text-transform:uppercase; }
+    .analogy { border-color:rgba(58,191,145,.28); background:linear-gradient(135deg,rgba(58,191,145,.08),var(--surface)); }
+    .warning { border-color:rgba(240,163,91,.32); background:linear-gradient(135deg,rgba(240,163,91,.09),var(--surface)); }
+    .deep-note { border-color:rgba(101,217,239,.28); background:linear-gradient(135deg,rgba(101,217,239,.08),var(--surface)); }
+    .tag { display:inline-flex; padding:4px 9px; margin:2px; border-radius:999px; color:var(--purple); background:rgba(145,91,230,.11); font:700 .72rem 'DM Sans'; }
+
+    .flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:10px; margin:28px 0; }
+    .flow-box { min-height:112px; display:grid; place-items:center; text-align:center; padding:16px; border:1px solid var(--border); border-radius:18px; background:var(--surface); box-shadow:var(--shadow-sm); font:700 .85rem/1.5 'DM Sans'; }
+    .flow-box small {display:block;color:var(--muted);font-weight:500;margin-top:5px}.arrow{color:var(--purple);font:800 1.4rem 'DM Sans'}
+    .matrix-viz { display:grid; grid-template-columns:2.2fr auto .7fr auto .7fr; align-items:center; gap:11px; margin:28px 0; }
+    .matrix { display:grid; gap:4px; padding:12px; border:1px solid var(--border); border-radius:15px; background:var(--surface); box-shadow:var(--shadow-sm); }
+    .matrix.big {grid-template-columns:repeat(7,1fr)}.matrix.slim{grid-template-columns:repeat(2,1fr)}
+    .cell {aspect-ratio:1;border-radius:4px;background:linear-gradient(135deg,rgba(118,80,232,.26),rgba(238,120,191,.2));}
+    .matrix-op {font:800 1.35rem 'DM Sans';color:var(--purple)}
+
+    .table-wrap { overflow-x:auto; margin:28px 0; border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow-sm); }
+    table { width:100%; min-width:650px; border-collapse:collapse; background:var(--surface); font-family:'DM Sans'; }
+    th,td { padding:15px 17px; text-align:left; border-bottom:1px solid var(--border); }
+    th { color:var(--text); font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; background:rgba(145,91,230,.08); }
+    td { color:var(--muted); font-size:.87rem; } tr:last-child td{border-bottom:0}
+
+    pre { position:relative; margin:28px 0; padding:54px 22px 22px; overflow:auto; border-radius:20px; background:var(--code-bg); color:var(--code-text); box-shadow:var(--shadow); font:500 .78rem/1.75 'JetBrains Mono',monospace; border:1px solid rgba(255,255,255,.08); }
+    pre::before { content:attr(data-lang); position:absolute; top:17px; left:22px; color:#a896bd; font:700 .65rem 'DM Sans'; letter-spacing:.12em; text-transform:uppercase; }
+    .copy-btn { position:absolute; top:10px; right:10px; border:1px solid rgba(255,255,255,.12); border-radius:9px; padding:7px 10px; color:#cfc4db; background:rgba(255,255,255,.07); font:600 .67rem 'DM Sans'; cursor:pointer!important; }
+    code:not(pre code) { padding:.15em .42em; border:1px solid var(--border); border-radius:7px; color:var(--purple); background:rgba(145,91,230,.08); font:500 .84em 'JetBrains Mono'; }
+    .kw{color:#d995ff}.fn{color:#73dcec}.st{color:#ffc889}.cm{color:#7f738c}.nu{color:#8fe0ae}
+
+    details { margin:15px 0; border:1px solid var(--border); border-radius:16px; background:var(--surface); overflow:hidden; }
+    summary { padding:17px 21px; list-style:none; font:700 .92rem 'DM Sans'; color:var(--text); }
+    summary::after {content:'+';float:right;color:var(--purple);font-size:1.2rem} details[open] summary::after{content:'−'}
+    details p { padding:0 21px 18px; }
+
+    .footer { width:min(920px,calc(100% - 40px)); margin:0 auto 40px; padding:30px; text-align:center; border:1px solid var(--border); border-radius:25px; background:var(--surface); box-shadow:var(--shadow-sm); }
+    .footer strong {font:800 1.15rem 'DM Sans'}.footer p{color:var(--muted)}.footer a{color:var(--purple);font-weight:700}
+    .to-top { position:fixed; right:22px; bottom:22px; z-index:600; width:45px; height:45px; display:grid; place-items:center; border:1px solid var(--border); border-radius:15px; color:var(--purple); background:var(--surface); backdrop-filter:blur(14px); box-shadow:var(--shadow-sm); opacity:0; transform:translateY(10px); pointer-events:none; transition:.25s; }
+    .to-top.show{opacity:1;transform:none;pointer-events:auto}
+
+    img, svg, video, canvas { max-width:100%; height:auto; }
+    pre, .table-wrap, .math-card { max-width:100%; }
+    @media (hover:none), (pointer:coarse) {
+      body, a, button, summary, .sidebar { cursor:auto; }
+      .cursor-ring { display:none !important; }
+    }
+    @media (max-width: 850px) {
+      .sidebar {display:none}.hero{padding-top:125px}.island-wrap:hover{width:58px;height:24px}.island-wrap.open,.island-wrap:focus-within{width:calc(100vw - 28px);height:64px}.nav-links a:not(.home-link){display:none}.island-content{grid-template-columns:auto 1fr auto}.nav-links{justify-content:end}.island-touch{display:block}.card-grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}.matrix-viz{grid-template-columns:1fr}.matrix-op{text-align:center}.hero-stats{grid-template-columns:1fr}.stat{border-right:0;border-bottom:1px solid var(--border)}.stat:last-child{border-bottom:0}
+    }
+    @media (max-width: 520px) {
+      main{width:min(var(--max),calc(100% - 26px))}.hero{width:calc(100% - 26px)}.hero h1{font-size:clamp(2.35rem,13vw,3rem)}.card,.math-card,.analogy,.warning,.deep-note{padding:20px 17px;border-radius:18px}.island-brand span{display:none}.home-link{font-size:0!important}.home-link::after{content:'Home';font-size:.78rem}.island-content{gap:6px;padding-left:12px}.footer{width:calc(100% - 26px)}
+    }
+    @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="reading-progress" id="progress"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <button class="island-touch" id="islandTouch" aria-label="Open navigation"></button>
+  <nav class="island-wrap" id="islandWrap" aria-label="Primary navigation">
+    <div class="island-ring"></div>
+    <div class="island">
+      <div class="island-content">
+        <div class="island-brand"><span class="brand-gem">M</span><span>MD's Space</span></div>
+        <div class="nav-links">
+          <a href="#intuition">LoRA</a><a href="#qlora">QLoRA</a><a href="#memory">Memory</a>
+          <a class="home-link" href="https://mdshafaque56.github.io/MD-s-Space/blogsy.html" target="_blank" rel="noopener noreferrer" title="Open MD's Space Home">MD's Space Home ↗</a>
+        </div>
+        <div class="island-actions"><button id="fullscreenToggle" aria-label="Enter full screen" title="Full screen">⛶</button><button id="themeToggle" aria-label="Toggle light and dark theme" title="Toggle theme">☾</button></div>
+      </div>
+    </div>
+  </nav>
+  <div class="fullscreen-reminder" role="status" aria-live="polite">For the best experience, try full screen ⛶</div>
+
+  <aside class="sidebar" aria-label="Table of contents">
+    <div class="sidebar-handle"><span>Contents</span></div>
+    <div class="sidebar-panel"><h2 class="sidebar-title">On this page</h2><nav class="toc" id="toc"></nav></div>
+  </aside>
+
+  <header class="hero" id="top">
+    <div class="eyebrow"><i></i> Mathematical deep dive, made intuitive</div>
+    <h1><span class="gradient-text">LoRA &amp; QLoRA</span><br>from first principles.</h1>
+    <p class="hero-sub">How a pair of small matrices and a carefully quantized frozen model make billion-parameter fine-tuning practical, explained visually, mathematically, and from the inside out.</p>
+    <div class="hero-actions"><a class="btn primary" href="#foundations">Start learning ↓</a><a class="btn" href="#implementation">Jump to code</a></div>
+    <div class="hero-stats">
+      <div class="stat"><strong>\(\Delta W = BA\)</strong><span>The LoRA idea</span></div>
+      <div class="stat"><strong>4-bit</strong><span>QLoRA base weights</span></div>
+      <div class="stat"><strong>Frozen + tiny</strong><span>Base model + adapters</span></div>
+    </div>
+  </header>
+
+  <main><article id="article">
+    <section id="foundations">
+      <span class="section-num">01 · Foundations</span>
+      <h2>What are we actually trying to change?</h2>
+      <p class="lead">A pretrained language model already knows language, facts, patterns, and reasoning behaviors. Fine-tuning usually does not need to rebuild that knowledge. It needs to <strong>steer</strong> the model toward a new behavior, domain, style, or task.</p>
+      <p>Inside a transformer, most useful computation is matrix multiplication. If a layer receives a vector or a batch of vectors \(X\), a learned weight matrix \(W\) transforms it:</p>
+      <div class="math-card"><span class="math-label">The ordinary linear layer</span>\[Y = XW^\top + b\]</div>
+      <p>During full fine-tuning, every chosen weight is allowed to move. If the optimized matrix was \(W_0\) before training and becomes \(W'\) afterward, then the learned change is:</p>
+      <div class="math-card"><span class="math-label">Weight update</span>\[W' = W_0 + \Delta W\]</div>
+      <div class="analogy"><h4>Plain-English picture</h4><p>Think of \(W_0\) as a gigantic, already-written book. Full fine-tuning rewrites words across the whole book. LoRA freezes the book and attaches a thin correction booklet that says, “When you see this kind of input, adjust the response in this direction.”</p></div>
+
+      <h3>Why full fine-tuning becomes expensive</h3>
+      <p>Training memory is not only the model's weights. For each trainable parameter we may also keep a gradient and optimizer states. With Adam-like optimization, two moment estimates are commonly maintained. A rough mixed-precision budget can therefore include FP16/BF16 weights, FP16 gradients, and FP32 optimizer states.</p>
+      <div class="math-card"><span class="math-label">A useful rough model</span>\[M_{train} \approx M_{weights}+M_{gradients}+M_{optimizer}+M_{activations}\]</div>
+      <p>For \(N\) fully trainable parameters, a rough parameter-state estimate is often around \(16N\) bytes before activations and temporary buffers, depending on the exact optimizer and framework. For billions of parameters, that is the real wall LoRA attacks.</p>
+      <div class="warning"><h4>Important nuance</h4><p>There is no universal “bytes per parameter” constant. Precision, optimizer, gradient checkpointing, sharding, offloading, sequence length, and batch size all change the final number. Use estimates to reason, then measure the actual run.</p></div>
+    </section>
+
+    <section id="intuition">
+      <span class="section-num">02 · LoRA intuition</span>
+      <h2>The low-rank hypothesis</h2>
+      <p class="lead">LoRA makes a bold but practical assumption: although a model has enormous weight matrices, the useful <em>change</em> needed for a new task may live in a much smaller number of directions.</p>
+      <p>Instead of directly training every element of the dense update \(\Delta W\in\mathbb{R}^{d_{out}\times d_{in}}\), LoRA writes the update as the product of two thin matrices:</p>
+      <div class="math-card"><span class="math-label">Low-rank factorization</span>\[\Delta W = BA,\qquad A\in\mathbb{R}^{r\times d_{in}},\quad B\in\mathbb{R}^{d_{out}\times r}\]\[r \ll \min(d_{in},d_{out})\]</div>
+      <div class="matrix-viz" aria-label="Visual comparison of a dense matrix and two thin matrices">
+        <div class="matrix big"><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i></div><div class="matrix-op">≈</div>
+        <div class="matrix slim"><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i></div><div class="matrix-op">×</div>
+        <div class="matrix slim"><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i></div>
+      </div>
+      <p>The rank of \(BA\) cannot exceed \(r\). So LoRA constrains the update to a low-dimensional subspace. It does <strong>not</strong> claim that the original matrix \(W_0\) is low rank. The claim concerns the task-specific update.</p>
+
+      <h3>Parameter savings, exactly</h3>
+      <p>A dense update has \(d_{out}d_{in}\) trainable values. LoRA has only \(r d_{in}+d_{out}r\):</p>
+      <div class="math-card"><span class="math-label">Trainable parameter count</span>\[P_{full}=d_{out}d_{in}\]\[P_{LoRA}=r(d_{in}+d_{out})\]\[\text{fraction trained}=\frac{r(d_{in}+d_{out})}{d_{out}d_{in}}\]</div>
+      <p>If \(d_{in}=d_{out}=4096\) and \(r=16\), full training updates \(16{,}777{,}216\) values in that matrix. LoRA updates \(131{,}072\), which is about \(0.78125\%\) as many.</p>
+      <div class="card-grid">
+        <div class="card"><h4>Full update</h4><p>\(4096\times4096=16.78\) million trainable elements.</p></div>
+        <div class="card"><h4>Rank-16 LoRA</h4><p>\(16(4096+4096)=131{,}072\) trainable elements.</p></div>
+      </div>
+
+      <h3>Why rank means “number of independent directions”</h3>
+      <p>Matrix \(A\) first projects the input from \(d_{in}\) dimensions down to an \(r\)-dimensional bottleneck. Matrix \(B\) expands those \(r\) coordinates back to \(d_{out}\). The adapter can therefore learn at most \(r\) independent latent adjustment directions.</p>
+      <div class="flow"><div class="flow-box">Input \(x\)<small>\(d_{in}\) features</small></div><div class="arrow">→</div><div class="flow-box">\(Ax\)<small>compress to \(r\)</small></div><div class="arrow">→</div><div class="flow-box">\(BAx\)<small>expand to \(d_{out}\)</small></div></div>
+      <div class="deep-note"><h4>Connection to SVD</h4><p>The singular value decomposition writes a matrix as \(U\Sigma V^\top\). Keeping only the largest \(r\) singular directions gives the best rank-\(r\) approximation under common matrix norms. LoRA does not repeatedly compute the SVD of the desired update. It directly learns two factors whose product is rank at most \(r\).</p></div>
+    </section>
+
+    <section id="forward-pass">
+      <span class="section-num">03 · LoRA internals</span>
+      <h2>Forward pass, scaling, and initialization</h2>
+      <p>The frozen path and the trainable adapter path run in parallel. For a column-vector convention, the result is:</p>
+      <div class="math-card"><span class="math-label">LoRA forward equation</span>\[h = W_0x + \frac{\alpha}{r}BAx\]</div>
+      <p>Here \(W_0\) is frozen, \(A\) and \(B\) are trainable, \(r\) is the rank, and \(\alpha\) controls adapter strength. Many implementations also apply dropout on the adapter input during training.</p>
+      <h3>Why multiply by \(\alpha/r\)?</h3>
+      <p>If rank changes, the raw magnitude of the adapter output can also change. Scaling gives a convenient knob and makes rank experiments easier to control. The effective multiplier is \(s=\alpha/r\). Some newer variants use rank-stabilized scaling such as \(\alpha/\sqrt{r}\), but the classic expression is \(\alpha/r\).</p>
+      <h3>Why is one matrix initialized to zero?</h3>
+      <p>A common setup initializes \(A\) randomly and \(B=0\). At step zero, \(BA=0\), so the adapted model behaves exactly like the original model. Yet learning can begin:</p>
+      <div class="math-card"><span class="math-label">Early gradient behavior</span>\[\frac{\partial \mathcal L}{\partial B}=\frac{\alpha}{r}\left(\frac{\partial \mathcal L}{\partial h}\right)(Ax)^\top\]\[\frac{\partial \mathcal L}{\partial A}=\frac{\alpha}{r}B^\top\left(\frac{\partial \mathcal L}{\partial h}\right)x^\top\]</div>
+      <p>At initialization \(B=0\), the first gradient for \(A\) is zero, while \(B\) receives a gradient because \(A\) is nonzero. Once \(B\) moves away from zero, \(A\) also begins receiving a useful gradient. This starts from an unchanged base model without permanently blocking training.</p>
+      <h3>Where adapters are inserted</h3>
+      <p>In a transformer, LoRA is commonly attached to attention projections such as query, key, value, and output, and sometimes to feed-forward projections. The best target modules depend on model architecture, task, memory budget, and framework naming.</p>
+      <div class="card-grid">
+        <div class="card"><h4>Attention projections</h4><p><span class="tag">q_proj</span><span class="tag">k_proj</span><span class="tag">v_proj</span><span class="tag">o_proj</span></p></div>
+        <div class="card"><h4>MLP projections</h4><p><span class="tag">gate_proj</span><span class="tag">up_proj</span><span class="tag">down_proj</span></p></div>
+      </div>
+    </section>
+
+    <section id="backprop">
+      <span class="section-num">04 · Backpropagation</span>
+      <h2>What remains frozen, and what receives gradients?</h2>
+      <p class="lead">The base weight participates in the forward and backward computation, but it is not an optimizer target. Gradients are used to work out how \(A\) and \(B\) should move; \(W_0\) itself is left untouched.</p>
+      <p>Let \(G=\partial\mathcal L/\partial h\). Ignoring batch notation and using compatible outer products, the adapter gradients follow the chain rule:</p>
+      <div class="math-card"><span class="math-label">Chain rule through the adapter</span>\[\nabla_B\mathcal L=s\,G(Ax)^\top\]\[\nabla_A\mathcal L=s\,B^\top Gx^\top,\qquad s=\frac{\alpha}{r}\]</div>
+      <p>The input gradient still contains contributions from both paths:</p>
+      <div class="math-card"><span class="math-label">Gradient flowing to the previous layer</span>\[\nabla_x\mathcal L=W_0^\top G+sA^\top B^\top G\]</div>
+      <p>Freezing a parameter means “do not calculate and apply a parameter update for this tensor.” It does not mean “remove this tensor from the computation.” Activations must still pass through the frozen network.</p>
+    </section>
+
+    <section id="merge">
+      <span class="section-num">05 · Merge and adapters</span>
+      <h2>After training: keep separate or merge</h2>
+      <p>Once trained, an adapter can remain separate from the base model, or its update can be merged:</p>
+      <div class="math-card"><span class="math-label">Merging</span>\[W_{merged}=W_0+\frac{\alpha}{r}BA\]</div>
+      <div class="card-grid">
+        <div class="card"><h4>Keep adapters separate</h4><p>Small files, easy task switching, and one shared base model. Inference must apply the adapter path.</p></div>
+        <div class="card"><h4>Merge into the base</h4><p>A single conventional weight matrix and no extra adapter multiplication. You lose easy hot-swapping unless you retain separate copies.</p></div>
+      </div>
+      <p>Adapters are also composable in principle, but simple arithmetic addition is not guaranteed to preserve every behavior. Different adapters can interfere because their learned directions may conflict.</p>
+    </section>
+
+    <section id="quantization">
+      <span class="section-num">06 · Quantization foundations</span>
+      <h2>Before QLoRA: what quantization really does</h2>
+      <p class="lead">Quantization stores many possible real values using a small set of representable codes. A 4-bit code has only \(2^4=16\) possible states, so a group of weights must share scaling information that maps codes back to approximate real values.</p>
+      <p>For simple uniform quantization, one may describe encoding and decoding as:</p>
+      <div class="math-card"><span class="math-label">Simplified uniform quantization</span>\[q=\operatorname{clip}\left(\operatorname{round}\left(\frac{w}{s}\right)+z,\ q_{min},q_{max}\right)\]\[\hat w=s(q-z)\]</div>
+      <p>The stored code \(q\) is small. The scale \(s\) and optional zero point \(z\) define how to interpret it. Since many original values map to one code, quantization introduces error \(e=w-\hat w\).</p>
+      <div class="analogy"><h4>Map analogy</h4><p>A high-precision weight is like an exact GPS coordinate. Quantization replaces it with the nearest square on a coarse map. The map is smaller, but several nearby positions become indistinguishable.</p></div>
+      <h3>Why groups or blocks matter</h3>
+      <p>One scale for an entire large tensor can be distorted by outliers. Block-wise quantization splits weights into smaller groups and gives each group its own scale, better matching local ranges at the cost of storing more scale metadata.</p>
+    </section>
+
+    <section id="qlora">
+      <span class="section-num">07 · QLoRA</span>
+      <h2>Quantized base, trainable low-rank path</h2>
+      <p class="lead">QLoRA keeps the pretrained base model frozen in a compact 4-bit representation and trains LoRA adapters in a higher compute precision. The quantized codes are storage; matrix multiplication uses dequantized values at an appropriate compute dtype.</p>
+      <div class="flow"><div class="flow-box">4-bit base weights<small>frozen storage</small></div><div class="arrow">→</div><div class="flow-box">dequantize by block<small>BF16/FP16 compute</small></div><div class="arrow">+</div><div class="flow-box">LoRA path<small>trainable adapters</small></div></div>
+      <div class="math-card"><span class="math-label">Conceptual QLoRA forward pass</span>\[h=\operatorname{Dequant}(W_q)x+\frac{\alpha}{r}BAx\]</div>
+      <p>The base codes \(W_q\) are never updated. Gradients train \(A\) and \(B\). This is why “training a 4-bit model” is slightly misleading: QLoRA is normally training adapters <em>around</em> a frozen 4-bit base, not performing ordinary gradient updates directly on every 4-bit code.</p>
+
+      <h3>NormalFloat 4-bit, or NF4</h3>
+      <p>Neural weights within a normalized block often resemble a bell-shaped distribution more than a uniform distribution. NF4 uses a non-uniform set of representable values designed to allocate its limited codes more appropriately for normally distributed weights. Dense code placement near common values reduces error compared with naively spacing all levels uniformly over the range.</p>
+      <div class="deep-note"><h4>Conceptual view, not a literal implementation formula</h4><p>Imagine dividing the probability mass of a standard normal distribution into regions and representing each region with a suitable code value. The goal is to spend more of the 16 codes where normalized weights are statistically likely to occur. Actual implementations use predefined codebooks and block-wise normalization.</p></div>
+
+      <h3>Double quantization</h3>
+      <p>Block quantization needs scale constants. Across a very large model, those constants also consume memory. Double quantization quantizes those scale values themselves, replacing many higher-precision constants with compact codes plus a smaller amount of secondary metadata.</p>
+      <div class="math-card"><span class="math-label">Two levels, conceptually</span>\[W \approx c_1\cdot Q_1(W),\qquad c_1\approx c_2\cdot Q_2(c_1)\]</div>
+      <p>This schematic expresses the idea only: first quantize weights using per-block constants, then compress those constants with another quantization level.</p>
+
+      <h3>Paged optimizers</h3>
+      <p>Memory spikes can occur when long sequences or large batches create unusually large activation demands. Paged optimizer approaches rely on managed memory behavior to move optimizer pages between GPU and host memory when necessary, reducing catastrophic spikes. They are a safety mechanism, not magic free bandwidth: heavy paging can slow training.</p>
+    </section>
+
+    <section id="memory">
+      <span class="section-num">08 · Memory accounting</span>
+      <h2>Where the savings actually come from</h2>
+      <p>For \(N\) base parameters, raw 4-bit storage is ideally \(N/2\) bytes, before block scales and other metadata. A 7-billion-parameter base therefore has an idealized raw code size of about \(3.5\) GB in decimal units. Real memory is higher because of metadata, modules held in other dtypes, temporary dequantization buffers, CUDA context, adapters, optimizer states, gradients, and activations.</p>
+      <div class="table-wrap"><table><thead><tr><th>Memory component</th><th>LoRA</th><th>QLoRA</th><th>Why it exists</th></tr></thead><tbody>
+        <tr><td>Base weights</td><td>Often FP16/BF16</td><td>Usually 4-bit</td><td>Frozen pretrained knowledge</td></tr>
+        <tr><td>Adapters</td><td>Higher precision</td><td>Higher precision</td><td>Trainable low-rank update</td></tr>
+        <tr><td>Adapter gradients</td><td>Yes</td><td>Yes</td><td>Backpropagation into \(A,B\)</td></tr>
+        <tr><td>Optimizer states</td><td>Adapters only</td><td>Adapters only</td><td>Momentum and variance estimates</td></tr>
+        <tr><td>Activations</td><td>Yes</td><td>Yes</td><td>Needed for backward pass</td></tr>
+        <tr><td>Quantization metadata</td><td>No</td><td>Yes</td><td>Scales/codebook interpretation</td></tr>
+      </tbody></table></div>
+      <h3>Activations can become the next bottleneck</h3>
+      <p>After shrinking model and optimizer memory, activations may dominate, especially with long context lengths. Activation memory generally rises with batch size, number of tokens, hidden width, layers, and stored intermediate tensors. Gradient checkpointing trades extra recomputation for lower activation memory.</p>
+      <div class="warning"><h4>Do not estimate only from model size</h4><p>Two runs using the same model can differ dramatically because sequence length, padding strategy, micro-batch size, attention implementation, checkpointing, and optimizer configuration differ.</p></div>
+    </section>
+
+    <section id="hyperparameters">
+      <span class="section-num">09 · Practical knobs</span>
+      <h2>Rank, alpha, dropout, and targets</h2>
+      <div class="table-wrap"><table><thead><tr><th>Knob</th><th>What it controls</th><th>If too small</th><th>If too large</th></tr></thead><tbody>
+        <tr><td>Rank \(r\)</td><td>Adapter capacity</td><td>Underfitting</td><td>More memory and overfitting risk</td></tr>
+        <tr><td>Alpha \(\alpha\)</td><td>Update scale</td><td>Weak adaptation</td><td>Unstable or overpowering update</td></tr>
+        <tr><td>Dropout</td><td>Adapter regularization</td><td>Less regularization</td><td>Can suppress useful signal</td></tr>
+        <tr><td>Target modules</td><td>Where capacity is placed</td><td>Insufficient coverage</td><td>More trainable parameters</td></tr>
+      </tbody></table></div>
+      <p>Rank is not a universal quality dial. A narrow task may need little capacity, whereas broad instruction tuning or domain adaptation may benefit from more rank or more target modules. Validation quality should choose the configuration, not rank alone.</p>
+      <h3>A disciplined tuning order</h3>
+      <ol>
+        <li>Build a clean, representative train/validation split.</li>
+        <li>Start with attention targets and a modest rank.</li>
+        <li>Verify formatting, loss behavior, generation quality, and overfitting.</li>
+        <li>If clearly under-capacity, increase rank or target more projections.</li>
+        <li>Then tune learning rate, epochs, effective batch size, dropout, and sequence length.</li>
+      </ol>
+    </section>
+
+    <section id="implementation">
+      <span class="section-num">10 · Implementation</span>
+      <h2>A compact QLoRA training skeleton</h2>
+      <p>The following example shows the architecture of a common workflow with the Hugging Face ecosystem. Package APIs can evolve, so treat names and versions as implementation-specific and check the documentation for your installed environment.</p>
+      <pre data-lang="Python"><button class="copy-btn" type="button">Copy</button><code><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+<span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model, prepare_model_for_kbit_training
+
+model_id = <span class="st">"your-base-model"</span>
+
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=<span class="kw">True</span>,
+    bnb_4bit_quant_type=<span class="st">"nf4"</span>,
+    bnb_4bit_use_double_quant=<span class="kw">True</span>,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+)
+
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    quantization_config=bnb_config,
+    device_map=<span class="st">"auto"</span>,
+)
+
+model = prepare_model_for_kbit_training(model)
+
+lora_config = LoraConfig(
+    r=<span class="nu">16</span>,
+    lora_alpha=<span class="nu">32</span>,
+    lora_dropout=<span class="nu">0.05</span>,
+    bias=<span class="st">"none"</span>,
+    task_type=<span class="st">"CAUSAL_LM"</span>,
+    target_modules=[<span class="st">"q_proj"</span>, <span class="st">"k_proj"</span>, <span class="st">"v_proj"</span>, <span class="st">"o_proj"</span>],
+)
+
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+
+<span class="cm"># Next: tokenize a properly formatted dataset, configure a trainer,</span>
+<span class="cm"># train, evaluate on held-out examples, and save the adapter.</span></code></pre>
+      <h3>The tiny linear-algebra core</h3>
+      <pre data-lang="Python / PyTorch"><button class="copy-btn" type="button">Copy</button><code><span class="kw">import</span> math
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+<span class="kw">class</span> <span class="fn">LoRALinear</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, base, rank=<span class="nu">8</span>, alpha=<span class="nu">16</span>):
+        <span class="kw">super</span>().__init__()
+        self.base = base
+        self.base.weight.requires_grad_(<span class="kw">False</span>)
+        <span class="kw">if</span> self.base.bias <span class="kw">is not None</span>:
+            self.base.bias.requires_grad_(<span class="kw">False</span>)
+
+        self.A = nn.Parameter(torch.empty(rank, base.in_features))
+        self.B = nn.Parameter(torch.zeros(base.out_features, rank))
+        nn.init.kaiming_uniform_(self.A, a=math.sqrt(<span class="nu">5</span>))
+        self.scale = alpha / rank
+
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x):
+        frozen_path = self.base(x)
+        adapter_path = (x @ self.A.T) @ self.B.T
+        <span class="kw">return</span> frozen_path + self.scale * adapter_path</code></pre>
+      <div class="deep-note"><h4>Production checklist</h4><p>Confirm target-module names, tokenizer padding and chat template, label masking, compute dtype support, maximum sequence length, gradient checkpointing, evaluation generation settings, checkpoint strategy, and whether your final deployment expects merged or separate adapter weights.</p></div>
+    </section>
+
+    <section id="comparison">
+      <span class="section-num">11 · Comparison</span>
+      <h2>Full fine-tuning vs LoRA vs QLoRA</h2>
+      <div class="table-wrap"><table><thead><tr><th>Property</th><th>Full fine-tuning</th><th>LoRA</th><th>QLoRA</th></tr></thead><tbody>
+        <tr><td>Base storage during training</td><td>Higher precision</td><td>Usually higher precision</td><td>4-bit quantized</td></tr>
+        <tr><td>Trainable weights</td><td>All selected base weights</td><td>Low-rank adapters</td><td>Low-rank adapters</td></tr>
+        <tr><td>Optimizer footprint</td><td>Large</td><td>Small</td><td>Small</td></tr>
+        <tr><td>Base-model fidelity</td><td>Can alter all weights</td><td>Frozen base</td><td>Frozen, quantized base</td></tr>
+        <tr><td>Hardware demand</td><td>Highest</td><td>Lower</td><td>Usually lowest</td></tr>
+        <tr><td>Portable task artifact</td><td>Large checkpoint</td><td>Small adapter</td><td>Small adapter</td></tr>
+      </tbody></table></div>
+      <p>QLoRA is not automatically better than LoRA. It maximizes memory efficiency but adds quantization complexity and can be slower in some environments because weights must be dequantized for computation. If sufficient memory exists, a higher-precision frozen base with LoRA may be operationally simpler.</p>
+    </section>
+
+    <section id="failure-modes">
+      <span class="section-num">12 · Failure modes</span>
+      <h2>What LoRA and QLoRA do not solve</h2>
+      <div class="card-grid">
+        <div class="card"><h4>Bad data</h4><p>Adapters efficiently learn noise, contradictions, and formatting mistakes too.</p></div>
+        <div class="card"><h4>Missing knowledge</h4><p>Fine-tuning is not a guaranteed factual database update mechanism. Retrieval may be more suitable.</p></div>
+        <div class="card"><h4>Catastrophic behavior shift</h4><p>A narrow or aggressive dataset can damage general usefulness even while the base is frozen, because the adapter changes outputs.</p></div>
+        <div class="card"><h4>Evaluation leakage</h4><p>A low loss means little if validation examples overlap training data or fail to represent deployment.</p></div>
+      </div>
+      <h3>Common misconceptions</h3>
+      <details><summary>“LoRA compresses the original model.”</summary><p>No. LoRA compresses the <em>trainable update representation</em>. QLoRA separately quantizes the frozen base model.</p></details>
+      <details><summary>“Rank 64 is always better than rank 8.”</summary><p>No. More rank means more capacity and cost. Whether it helps depends on task complexity, dataset size, targets, optimization, and overfitting.</p></details>
+      <details><summary>“A frozen model uses no backward memory.”</summary><p>Not quite. Frozen parameters do not need their own gradients or optimizer states, but backpropagation still needs relevant activations and gradients through the network to train adapters.</p></details>
+      <details><summary>“4-bit multiplication happens directly for every operation.”</summary><p>Usually quantized weights are compact storage and are dequantized in blocks into a supported compute precision for matrix operations. Exact kernels differ by hardware and library.</p></details>
+    </section>
+
+    <section id="mental-model">
+      <span class="section-num">13 · Final mental model</span>
+      <h2>One picture to remember</h2>
+      <div class="card">
+        <h3 style="margin-top:0">LoRA</h3>
+        <p><strong>Freeze the giant map.</strong> Learn a small set of correction directions through \(A\) and \(B\). Apply the correction beside the original path.</p>
+        <div class="math-card">\[h=W_0x+\frac{\alpha}{r}BAx\]</div>
+        <h3>QLoRA</h3>
+        <p><strong>Fold the giant map into a compact 4-bit form.</strong> Unfold only the pieces needed for computation, while still training the same small correction path.</p>
+        <div class="math-card">\[h=\operatorname{Dequant}(W_q)x+\frac{\alpha}{r}BAx\]</div>
+      </div>
+      <p class="lead">The breakthrough is not merely “fewer parameters.” It is the separation of responsibilities: the frozen base carries broad pretrained knowledge, the low-rank adapter carries task-specific change, and quantization reduces the cost of keeping the base in memory.</p>
+    </section>
+  </article></main>
+
+  <footer class="footer"><strong>MD's Space</strong><p>Built for curious minds who want intuition and mathematics together.</p><a href="https://mdshafaque56.github.io/MD-s-Space/blogsy.html" target="_blank" rel="noopener noreferrer">Visit MD's Space Home ↗</a></footer>
+  <a class="to-top" id="toTop" href="#top" aria-label="Back to top">↑</a>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const themeButton = document.getElementById('themeToggle');
+      const savedTheme = localStorage.getItem('md-space-theme');
+      const preferred = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const setTheme = theme => {
+        root.dataset.theme = theme;
+        themeButton.textContent = theme === 'dark' ? '☀' : '☾';
+        document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0b0910' : '#f8f5ff';
+        localStorage.setItem('md-space-theme', theme);
+      };
+      setTheme(savedTheme || preferred);
+      themeButton.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+      const fullscreenButton = document.getElementById('fullscreenToggle');
+      const syncFullscreenButton = () => {
+        const active = Boolean(document.fullscreenElement);
+        fullscreenButton.setAttribute('aria-label', active ? 'Exit full screen' : 'Enter full screen');
+        fullscreenButton.title = active ? 'Exit full screen' : 'Full screen';
+      };
+      fullscreenButton.addEventListener('click', async () => {
+        try {
+          if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+          else await document.exitFullscreen();
+        } catch (_) {}
+      });
+      document.addEventListener('fullscreenchange', syncFullscreenButton);
+      syncFullscreenButton();
+
+      const article = document.getElementById('article');
+      const headings = [...article.querySelectorAll('h2, h3')];
+      const toc = document.getElementById('toc');
+      headings.forEach((h, i) => {
+        if (!h.id) h.id = 'section-' + i;
+        const a = document.createElement('a');
+        a.href = '#' + h.id; a.textContent = h.textContent;
+        a.className = h.tagName === 'H3' ? 'level-3' : 'level-2';
+        toc.appendChild(a);
+      });
+      const tocLinks = [...toc.querySelectorAll('a')];
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach(a => a.classList.toggle('active', a.hash === '#' + entry.target.id));
+          }
+        });
+      }, { rootMargin: '-18% 0px -72% 0px', threshold: 0 });
+      headings.forEach(h => observer.observe(h));
+
+      const progress = document.getElementById('progress');
+      const toTop = document.getElementById('toTop');
+      const updateScroll = () => {
+        const max = document.documentElement.scrollHeight - innerHeight;
+        progress.style.width = (max > 0 ? scrollY / max * 100 : 0) + '%';
+        toTop.classList.toggle('show', scrollY > 700);
+      };
+      addEventListener('scroll', updateScroll, { passive: true }); updateScroll();
+
+      const ring = document.getElementById('cursorRing');
+      const finePointer = matchMedia('(pointer: fine)');
+      const moveCursor = e => {
+        if (!finePointer.matches) return;
+        ring.style.visibility = 'visible';
+        ring.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      };
+      addEventListener('pointermove', moveCursor, { passive: true });
+      document.documentElement.addEventListener('mouseleave', () => {
+        ring.style.visibility = 'hidden';
+        ring.classList.remove('active');
+      });
+      document.querySelectorAll('a,button,summary').forEach(el => {
+        el.addEventListener('pointerenter', () => ring.classList.add('active'));
+        el.addEventListener('pointerleave', () => ring.classList.remove('active'));
+      });
+
+      document.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', async () => {
+        const code = btn.parentElement.querySelector('code').innerText;
+        try { await navigator.clipboard.writeText(code); btn.textContent='Copied!'; }
+        catch { btn.textContent='Select code'; }
+        setTimeout(()=>btn.textContent='Copy', 1400);
+      }));
+
+      const island = document.getElementById('islandWrap');
+      const touch = document.getElementById('islandTouch');
+      touch.addEventListener('click',()=>island.classList.toggle('open'));
+      document.addEventListener('click',e=>{ if(!island.contains(e.target) && e.target!==touch) island.classList.remove('open'); });
+      island.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>island.classList.remove('open')));
+    })();
+  </script>
+</body>
+</html>
