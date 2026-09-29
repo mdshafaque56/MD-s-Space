@@ -114,6 +114,67 @@
       .hero-copy-centred h1{font-size:clamp(3.2rem,16.5vw,5.25rem)!important;line-height:.88!important}
       .hero-copy-centred h1>span:first-child{display:block}
     }
+
+    /* Mobile-first refinements: static hero title, touch-friendly navigation, and responsive layouts */
+    @media(max-width:768px){
+      html,body{width:100%;max-width:100%;overflow-x:hidden}
+      .container{width:min(100% - 28px,1180px)}
+      .cursor-glow{display:none}
+      .hero{min-height:auto;grid-template-columns:1fr;gap:24px;padding:112px 0 64px;text-align:center}
+      .hero-copy-centred h1,.hero h1{font-size:clamp(2.65rem,12.5vw,4.5rem)!important;line-height:.96!important;letter-spacing:-.06em;margin:24px auto 20px!important}
+      .hero-copy-centred h1>span:first-child{display:block}
+      .hero-gradient{min-width:0;white-space:normal;text-align:center}
+      .hero-gradient::after{display:none}
+      .hero p{max-width:640px;margin:auto;padding:0 4px;font-size:1rem;line-height:1.7}
+      .hero-actions{width:100%;justify-content:center;gap:11px;margin-top:26px}
+      .hero-actions .btn{min-height:48px;justify-content:center}
+      .hero-art{height:300px;width:100%}
+      .planet{width:190px;height:190px}
+      .planet:after{width:265px;height:68px;border-width:10px}
+      .planet-core{font-size:2.55rem}
+      .sat{font-size:.73rem;padding:9px 11px}
+      .sat.one{top:24px;right:4px}.sat.two{bottom:35px;left:2px}
+      section{padding:76px 0}
+      .section-head{gap:16px;margin-bottom:28px}
+      .section-head h2{font-size:clamp(2rem,10vw,3rem);line-height:1.08}
+      .section-head p{max-width:100%}
+      .blog-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+      .search{grid-column:1/-1;max-width:none;width:100%;min-height:48px}
+      .filter{padding:11px 8px;font-size:.77rem}
+      .blog-grid{grid-template-columns:1fr;gap:14px}
+      .blog-card{min-height:auto;padding:21px}
+      .book{min-width:min(88vw,330px)}
+      .cover{height:300px;padding:25px}
+      .cover h3{font-size:1.75rem}
+      .about{grid-template-columns:1fr;gap:38px}
+      .portrait{width:min(82vw,360px);margin:auto}
+      .foot{flex-direction:column;gap:8px;text-align:center}
+      .books-wrap .section-head{flex-direction:row;align-items:end}
+      .island-wrap{top:10px;width:calc(100% - 20px)}
+      .nav-island:hover,.nav-island:focus-within,.nav-island.open{width:100%;height:122px;border-radius:22px}
+      .island-content{inset:0 15px;flex-wrap:wrap;align-content:center;gap:12px 14px}
+      .island-brand{width:calc(100% - 50px)}
+      .island-cta{margin-left:auto;padding:9px 12px}
+      .island-links{order:3;width:100%;justify-content:flex-start;gap:20px;margin:0;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+      .island-links::-webkit-scrollbar{display:none}
+      .island-links a{font-size:.8rem}
+      .name-card{padding:24px 20px}
+      .modal-card{padding:28px 20px}
+    }
+    @media(max-width:420px){
+      .container{width:calc(100% - 22px)}
+      .hero{padding-top:104px}
+      .hero-copy-centred h1,.hero h1{font-size:clamp(2.45rem,12.8vw,3.35rem)!important}
+      .hero-actions{flex-direction:column;align-items:stretch;padding:0 8px}
+      .hero-actions .btn{width:100%}
+      .hero-art{height:270px}
+      .planet{width:170px;height:170px}
+      .planet:after{width:235px;height:60px;border-width:9px}
+      .sat.one{right:0}.sat.two{left:0}
+      .books-wrap .section-head{flex-direction:column;align-items:flex-start}
+      .book{min-width:91vw}
+      .cover{height:280px}
+    }
   </style>
 </head>
 <body>
@@ -144,7 +205,7 @@
 </header>
 <main id="top">
   <section class="hero container">
-    <div class="hero-copy reveal"><div class="eyebrow"><span class="dot"></span><span class="visitor-greeting" id="visitorGreeting">Hi!</span>&nbsp; Ideas engineered for clarity</div><h1><span>Explore the </span><span class="gradient hero-gradient" id="typingTopic" aria-live="polite">AI multiverse.</span></h1><p>A personal knowledge universe by <strong>MD Shafaque</strong>, where machine learning, probability, and modern AI are made visual, intuitive, and useful.</p><div class="hero-actions"><a class="btn btn-primary" href="#blogs">Read the blogs <span>↓</span></a><a class="btn btn-secondary" href="#books">Browse books <span>↗</span></a></div></div>
+    <div class="hero-copy reveal"><div class="eyebrow"><span class="dot"></span><span class="visitor-greeting" id="visitorGreeting">Hi!</span>&nbsp; Ideas engineered for clarity</div><h1><span>Explore the </span><span class="gradient hero-gradient" id="typingTopic" aria-live="polite">AI Multiverse</span></h1><p>A personal knowledge universe by <strong>MD Shafaque</strong>, where machine learning, probability, and modern AI are made visual, intuitive, and useful.</p><div class="hero-actions"><a class="btn btn-primary" href="#blogs">Read the blogs <span>↓</span></a><a class="btn btn-secondary" href="#books">Browse books <span>↗</span></a></div></div>
     <div class="hero-art reveal"><i class="spark s1"></i><i class="spark s2"></i><i class="spark s3"></i><div class="planet"><div class="planet-core">S</div></div><div class="sat one">✦ AI, decoded</div><div class="sat two">⌁ Learn visually</div></div>
   </section>
 
@@ -275,11 +336,25 @@ function runHeroTyping(){
   }
 }
 
-if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-  typingTopic.textContent='AI multiverse.';
-}else{
-  typingTimer=setTimeout(runHeroTyping,700);
+const mobileHeroQuery=window.matchMedia('(max-width: 768px)');
+function configureHeroTyping(){
+  clearTimeout(typingTimer);
+  if(mobileHeroQuery.matches){
+    typingTopic.textContent='AI Multiverse';
+    typingTopic.style.color='#7a37e9';
+    typingTopic.style.textShadow='none';
+  }else if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    typingTopic.textContent='AI Multiverse';
+  }else{
+    typingItemIndex=0;
+    typingCharIndex=typingItems[0][0].length;
+    typingDeleting=true;
+    typingTopic.textContent=typingItems[0][0];
+    typingTimer=setTimeout(runHeroTyping,700);
+  }
 }
+configureHeroTyping();
+mobileHeroQuery.addEventListener?.('change',configureHeroTyping);
 
 const grid=document.getElementById('blogGrid'); let active='all';
 function render(){const q=document.getElementById('search').value.toLowerCase(); grid.innerHTML=''; blogs.filter(b=>(active==='all'||b[3]===active)&&(b[0]+' '+b[1]).toLowerCase().includes(q)).forEach((b,i)=>{const a=document.createElement('a');a.href=b[2];a.className='blog-card reveal show';a.dataset.status=b[3];a.innerHTML=`<div class="icon">${String(i+1).padStart(2,'0')}</div><h3>${b[0]}</h3><p>${b[1]}</p><div class="meta"><span>${b[3]==='live'?'Read article →':'Explore topic →'}</span><span class="status">${b[3]==='live'?'Published':'Soon'}</span></div>`;if(b[3]==='soon')a.addEventListener('click',e=>{e.preventDefault();openModal()});grid.appendChild(a)});}
